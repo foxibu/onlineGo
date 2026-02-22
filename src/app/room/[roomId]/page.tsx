@@ -1,0 +1,251 @@
+'use client';
+
+import { useParams, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Color } from '@/lib/go/types';
+import { joinRoom } from '@/lib/supabase/rooms';
+import { useGame } from '@/hooks/useGame';
+import GoBoard from '@/components/board/GoBoard';
+import GamePanel from '@/components/game/GamePanel';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import Toast from '@/components/ui/Toast';
+import Chat from '@/components/game/Chat';
+
+function RoomContent() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const roomId = params.roomId as string;
+
+  const [myColor, setMyColor] = useState<Color | null>(null);
+  const [nickname, setNickname] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
+
+  // Initialize from URL params
+  useEffect(() => {
+    const color = searchParams.get('color') as Color | null;
+    const name = searchParams.get('nickname') || '';
+    const action = searchParams.get('action');
+
+    setNickname(name);
+
+    if (color) {
+      setMyColor(color);
+    } else if (action === 'join' && name) {
+      // Join the room
+      setJoining(true);
+      joinRoom(roomId, name)
+        .then(({ myColor }) => {
+          setMyColor(myColor);
+        })
+        .catch(e => {
+          setJoinError(e.message);
+        })
+        .finally(() => setJoining(false));
+    }
+  }, [roomId, searchParams]);
+
+  const {
+    room,
+    gameState,
+    isMyTurn,
+    isScoring,
+    isFinished,
+    lastMove,
+    blackTimer,
+    whiteTimer,
+    scoring,
+    undoRequest,
+    toast,
+    roomLoading,
+    roomError,
+    handlePlace,
+    handlePass,
+    handleResign,
+    handleUndo,
+    handleUndoResponse,
+    handleDeadStoneToggle,
+    handleConfirmScore,
+    clearToast,
+  } = useGame({ roomId, myColor, nickname });
+
+  // Show undo request modal to opponent
+  const showUndoModal =
+    undoRequest &&
+    undoRequest.status === 'pending' &&
+    undoRequest.requested_by !== myColor;
+
+  if (roomLoading || joining) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-stone-500">
+          {joining ? 'Joining room...' : 'Loading...'}
+        </div>
+      </main>
+    );
+  }
+
+  if (roomError || joinError) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-2">
+          <div className="text-red-600 font-medium">{roomError || joinError}</div>
+          <Link href="/" className="text-stone-500 text-sm hover:underline">
+            Back to lobby
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (!room) return null;
+
+  // Waiting for opponent
+  if (room.status === 'waiting') {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <h2 className="text-xl font-bold text-stone-900">Waiting for opponent...</h2>
+          <p className="text-stone-500 text-sm">
+            Share this link with your friend
+          </p>
+          <div className="bg-white border border-stone-200 rounded-lg p-3 text-sm text-stone-700 break-all">
+            {typeof window !== 'undefined' ? window.location.origin : ''}/room/{roomId}?action=join&nickname=
+          </div>
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/room/${roomId}?action=join&nickname=`;
+              navigator.clipboard.writeText(url);
+            }}
+            className="text-sm text-stone-500 hover:text-stone-800"
+          >
+            Copy link
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const blackName = room.blackPlayer?.nickname || 'Black';
+  const whiteName = room.whitePlayer?.nickname || 'White';
+
+  return (
+    <main className="h-screen flex flex-col lg:flex-row items-center justify-center gap-4 p-2 lg:p-4 overflow-hidden">
+      {/* Mobile: top timer */}
+      <div className="w-full max-w-lg lg:hidden">
+        <GamePanel
+          gameState={gameState}
+          roomStatus={room.status}
+          myColor={myColor}
+          blackTimer={blackTimer}
+          whiteTimer={whiteTimer}
+          blackName={blackName}
+          whiteName={whiteName}
+          komi={room.komi}
+          scoring={scoring}
+          undoPending={!!undoRequest && undoRequest.requested_by === myColor}
+          onPass={handlePass}
+          onResign={handleResign}
+          onUndo={handleUndo}
+          onConfirmScore={handleConfirmScore}
+        />
+      </div>
+
+      {/* Board */}
+      <div className="flex-1 flex items-center justify-center w-full max-w-lg lg:max-w-2xl">
+        <GoBoard
+          board={gameState.board}
+          currentPlayer={gameState.currentPlayer}
+          lastMove={lastMove}
+          deadStones={scoring?.deadStones}
+          territoryBlack={scoring?.territory.black}
+          territoryWhite={scoring?.territory.white}
+          isMyTurn={isMyTurn}
+          isScoring={isScoring}
+          onPlace={handlePlace}
+          onDeadStoneToggle={handleDeadStoneToggle}
+        />
+      </div>
+
+      {/* Desktop: side panel */}
+      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:gap-3">
+        <GamePanel
+          gameState={gameState}
+          roomStatus={room.status}
+          myColor={myColor}
+          blackTimer={blackTimer}
+          whiteTimer={whiteTimer}
+          blackName={blackName}
+          whiteName={whiteName}
+          komi={room.komi}
+          scoring={scoring}
+          undoPending={!!undoRequest && undoRequest.requested_by === myColor}
+          onPass={handlePass}
+          onResign={handleResign}
+          onUndo={handleUndo}
+          onConfirmScore={handleConfirmScore}
+        />
+        <Chat roomId={roomId} nickname={nickname} />
+      </div>
+
+      {/* Mobile chat button */}
+      <div className="lg:hidden">
+        <Chat roomId={roomId} nickname={nickname} />
+      </div>
+
+      {/* Undo request modal */}
+      <Modal
+        open={!!showUndoModal}
+        onClose={() => handleUndoResponse(false)}
+        title="Undo Request"
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => handleUndoResponse(false)}>
+              Reject
+            </Button>
+            <Button onClick={() => handleUndoResponse(true)}>Accept</Button>
+          </>
+        }
+      >
+        <p>Your opponent is requesting to undo their last move.</p>
+      </Modal>
+
+      {/* Game result modal */}
+      {isFinished && gameState.result && (
+        <Modal
+          open={true}
+          onClose={() => {}}
+          title="Game Over"
+          actions={
+            <Link href="/">
+              <Button>Back to Lobby</Button>
+            </Link>
+          }
+        >
+          <p className="text-2xl font-bold text-center">{gameState.result}</p>
+        </Modal>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={clearToast} />
+      )}
+    </main>
+  );
+}
+
+export default function RoomPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="text-stone-500">Loading...</div>
+        </main>
+      }
+    >
+      <RoomContent />
+    </Suspense>
+  );
+}
