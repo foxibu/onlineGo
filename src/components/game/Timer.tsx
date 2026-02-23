@@ -38,7 +38,7 @@ export default function Timer({
           {playerName}
         </div>
         <div className="text-xs text-stone-500">
-          Captures: {captures}
+          따낸 돌: {captures}
         </div>
       </div>
       <div

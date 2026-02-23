@@ -10,6 +10,7 @@ export interface RoomRow {
   main_time_seconds: number;
   byoyomi_seconds: number;
   byoyomi_periods: number;
+  board_size: number;
   created_at: string;
 }
 
@@ -35,6 +36,7 @@ export async function createRoom(nickname: string, config: RoomConfig) {
       main_time_seconds: config.mainTimeSeconds,
       byoyomi_seconds: config.byoyomiSeconds,
       byoyomi_periods: config.byoyomiPeriods,
+      board_size: config.boardSize,
     })
     .select()
     .single();
@@ -61,10 +63,11 @@ export async function createRoom(nickname: string, config: RoomConfig) {
 
   if (playerError) throw playerError;
 
-  // Create initial game state
+  // Create initial game state (board string length depends on board size)
+  const boardSize = config.boardSize || 19;
   const { error: gameError } = await supabase.from('game_states').insert({
     room_id: room.id,
-    board: '.'.repeat(361),
+    board: '.'.repeat(boardSize * boardSize),
   });
 
   if (gameError) throw gameError;
@@ -81,13 +84,20 @@ export async function joinRoom(roomId: string, nickname: string): Promise<{ myCo
     .single();
 
   if (roomError) throw roomError;
-  if (room.status !== 'waiting') throw new Error('Room is not available');
 
-  // Get existing player
+  // Get existing players
   const { data: existingPlayers } = await supabase
     .from('players')
     .select('*')
     .eq('room_id', roomId);
+
+  // If this nickname is already in the room, return their color (idempotent)
+  const alreadyJoined = existingPlayers?.find(p => p.nickname === nickname);
+  if (alreadyJoined) {
+    return { myColor: alreadyJoined.color as 'black' | 'white' };
+  }
+
+  if (room.status !== 'waiting') throw new Error('Room is not available');
 
   if (!existingPlayers || existingPlayers.length === 0) {
     throw new Error('Room has no players');
@@ -110,7 +120,21 @@ export async function joinRoom(roomId: string, nickname: string): Promise<{ myCo
     byoyomi_periods_left: room.byoyomi_periods,
   });
 
-  if (joinError) throw joinError;
+  if (joinError) {
+    if (joinError.code === '23505') {
+      // Check if it was our own duplicate (Strict Mode / double-call)
+      const { data: me } = await supabase
+        .from('players')
+        .select('color')
+        .eq('room_id', roomId)
+        .eq('nickname', nickname)
+        .single();
+      if (me) return { myColor: me.color as 'black' | 'white' };
+      // Someone else took the last spot simultaneously
+      throw new Error('방이 가득 찼습니다. 다른 방을 이용해주세요.');
+    }
+    throw joinError;
+  }
 
   // Update room status to playing
   await supabase

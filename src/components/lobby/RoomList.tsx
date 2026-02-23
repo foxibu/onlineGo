@@ -17,6 +17,7 @@ interface RoomItem {
   main_time_seconds: number;
   byoyomi_seconds: number;
   byoyomi_periods: number;
+  board_size: number;
   created_at: string;
   players: { nickname: string; color: string }[];
 }
@@ -56,8 +57,9 @@ export default function RoomList({ nickname }: RoomListProps) {
   }, []);
 
   const formatTime = (seconds: number) => {
+    if (seconds === 0) return '무제한';
     const mins = Math.floor(seconds / 60);
-    return `${mins}min`;
+    return `${mins}분`;
   };
 
   const handleJoin = (roomId: string) => {
@@ -65,14 +67,14 @@ export default function RoomList({ nickname }: RoomListProps) {
   };
 
   if (loading) {
-    return <div className="text-center text-stone-500 py-8">Loading rooms...</div>;
+    return <div className="text-center text-stone-500 py-8">방 목록 불러오는 중...</div>;
   }
 
   if (rooms.length === 0) {
     return (
       <div className="text-center text-stone-500 py-8">
-        <p>No waiting rooms</p>
-        <p className="text-sm mt-1">Create a room to start playing!</p>
+        <p>대기 중인 방이 없습니다</p>
+        <p className="text-sm mt-1">방을 만들어 대국을 시작하세요!</p>
       </div>
     );
   }
@@ -86,14 +88,14 @@ export default function RoomList({ nickname }: RoomListProps) {
         >
           <div>
             <div className="font-medium text-stone-900">
-              {room.created_by}&apos;s room
+              {room.created_by}님의 방
             </div>
             <div className="text-xs text-stone-500">
-              Komi {room.komi} | {formatTime(room.main_time_seconds)} + {room.byoyomi_seconds}s &times; {room.byoyomi_periods}
+              {room.board_size || 19}로 · 덤 {room.komi} · {room.main_time_seconds === 0 ? '무제한' : `${formatTime(room.main_time_seconds)} + ${room.byoyomi_seconds}초×${room.byoyomi_periods}회`}
             </div>
           </div>
           <Button size="sm" onClick={() => handleJoin(room.id)}>
-            Join
+            입장
           </Button>
         </div>
       ))}

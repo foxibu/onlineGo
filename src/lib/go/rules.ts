@@ -6,6 +6,7 @@ export function getGroup(board: Board, pos: Position): Position[] {
   const color = getStone(board, pos);
   if (!color) return [];
 
+  const size = board.length;
   const visited = new Set<string>();
   const group: Position[] = [];
   const queue: Position[] = [pos];
@@ -19,7 +20,7 @@ export function getGroup(board: Board, pos: Position): Position[] {
     if (getStone(board, current) !== color) continue;
 
     group.push(current);
-    for (const neighbor of getNeighbors(current)) {
+    for (const neighbor of getNeighbors(current, size)) {
       const nKey = `${neighbor.x},${neighbor.y}`;
       if (!visited.has(nKey)) {
         queue.push(neighbor);
@@ -32,11 +33,12 @@ export function getGroup(board: Board, pos: Position): Position[] {
 
 // Count liberties (empty adjacent intersections) of a group
 export function getLiberties(board: Board, group: Position[]): Position[] {
+  const size = board.length;
   const liberties = new Set<string>();
   const result: Position[] = [];
 
   for (const pos of group) {
-    for (const neighbor of getNeighbors(pos)) {
+    for (const neighbor of getNeighbors(pos, size)) {
       const key = `${neighbor.x},${neighbor.y}`;
       if (!liberties.has(key) && getStone(board, neighbor) === null) {
         liberties.add(key);
@@ -63,13 +65,14 @@ export function applyCapturesAfterPlace(
   placedPos: Position,
   placedColor: Color
 ): { board: Board; capturedCount: number } {
+  const size = board.length;
   const opponentColor: Stone = placedColor === 'black' ? 'white' : 'black';
   let newBoard = board;
   let capturedCount = 0;
   const processed = new Set<string>();
 
   // Check all neighbors for opponent groups with no liberties
-  for (const neighbor of getNeighbors(placedPos)) {
+  for (const neighbor of getNeighbors(placedPos, size)) {
     const key = `${neighbor.x},${neighbor.y}`;
     if (processed.has(key)) continue;
     if (getStone(newBoard, neighbor) !== opponentColor) continue;
@@ -126,20 +129,21 @@ export function isLegalMove(
   color: Color,
   previousBoardHash: string | null
 ): { legal: boolean; reason?: string } {
-  if (!isValidPosition(pos)) {
-    return { legal: false, reason: 'Position out of bounds' };
+  const size = board.length;
+  if (!isValidPosition(pos, size)) {
+    return { legal: false, reason: '착수 위치가 범위를 벗어났습니다' };
   }
 
   if (getStone(board, pos) !== null) {
-    return { legal: false, reason: 'Position already occupied' };
+    return { legal: false, reason: '이미 돌이 있는 위치입니다' };
   }
 
   if (isSuicide(board, pos, color)) {
-    return { legal: false, reason: 'Suicide move' };
+    return { legal: false, reason: '자충수입니다' };
   }
 
   if (isKo(board, pos, color, previousBoardHash)) {
-    return { legal: false, reason: 'Ko violation' };
+    return { legal: false, reason: '패 규칙 위반입니다' };
   }
 
   return { legal: true };

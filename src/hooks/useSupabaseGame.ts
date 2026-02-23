@@ -22,7 +22,8 @@ function parseDeadStones(str: string): Position[] {
     .map(s => {
       const [x, y] = s.split(',').map(Number);
       return { x, y };
-    });
+    })
+    .filter(p => Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 0 && p.y >= 0);
 }
 
 export function useSupabaseGame(roomId: string) {
@@ -30,6 +31,7 @@ export function useSupabaseGame(roomId: string) {
   const [scoringState, setScoringState] = useState<ScoringState | null>(null);
   const [undoRequest, setUndoRequest] = useState<UndoRequest | null>(null);
   const [lastMove, setLastMove] = useState<Position | null>(null);
+  const [scoringRequestedBy, setScoringRequestedBy] = useState<Color | null>(null);
 
   const fetchGameState = useCallback(async () => {
     const { data, error } = await supabase
@@ -51,6 +53,7 @@ export function useSupabaseGame(roomId: string) {
       moves: [], // Moves history not needed from server for gameplay
       result: data.result,
     });
+    setScoringRequestedBy((data.scoring_requested_by as Color) || null);
 
     // Fetch last move for marker
     if (data.move_count > 0) {
@@ -134,5 +137,5 @@ export function useSupabaseGame(roomId: string) {
     };
   }, [roomId, fetchGameState, fetchScoringState, fetchUndoRequests]);
 
-  return { gameState, scoringState, undoRequest, lastMove, refetch: fetchGameState };
+  return { gameState, scoringState, undoRequest, lastMove, scoringRequestedBy, refetch: fetchGameState };
 }

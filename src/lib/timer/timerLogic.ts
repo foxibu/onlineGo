@@ -5,12 +5,19 @@ export function createTimerState(
   byoyomiSeconds: number,
   byoyomiPeriods: number
 ): TimerState {
+  // mainTimeSeconds = 0 means no time limit → use -1 as sentinel
+  const noLimit = mainTimeSeconds === 0 && byoyomiPeriods === 0;
   return {
-    mainTimeRemaining: mainTimeSeconds,
+    mainTimeRemaining: noLimit ? -1 : mainTimeSeconds,
     byoyomiRemaining: byoyomiSeconds,
     byoyomiPeriodsLeft: byoyomiPeriods,
     isInByoyomi: false,
   };
+}
+
+// Check if timer is set to "no limit" (mainTimeRemaining = -1)
+export function isNoTimeLimit(state: TimerState): boolean {
+  return state.mainTimeRemaining === -1;
 }
 
 // Tick the timer by 1 second. Returns new state and whether time is expired.
@@ -18,6 +25,10 @@ export function tickTimer(state: TimerState, byoyomiSeconds: number): {
   state: TimerState;
   expired: boolean;
 } {
+  // No time limit - never expire
+  if (isNoTimeLimit(state)) {
+    return { state, expired: false };
+  }
   if (state.isInByoyomi) {
     const remaining = state.byoyomiRemaining - 1;
     if (remaining <= 0) {
@@ -66,8 +77,11 @@ export function onMoveMade(state: TimerState, byoyomiSeconds: number): TimerStat
 
 // Format time for display
 export function formatTime(state: TimerState): string {
+  if (isNoTimeLimit(state)) {
+    return '∞';
+  }
   if (state.isInByoyomi) {
-    return `${state.byoyomiRemaining}s (${state.byoyomiPeriodsLeft})`;
+    return `${state.byoyomiRemaining}초 (${state.byoyomiPeriodsLeft})`;
   }
   const mins = Math.floor(state.mainTimeRemaining / 60);
   const secs = state.mainTimeRemaining % 60;

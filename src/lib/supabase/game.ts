@@ -33,26 +33,29 @@ export async function submitMove(
 ) {
   const nextPlayer = myColor === 'black' ? 'white' : 'black';
 
-  // Conditional update - only succeeds if it's still my turn
-  const { data, error } = await supabase
-    .from('game_states')
-    .update({
-      board: boardToString(newBoard),
-      current_player: nextPlayer,
-      move_count: moveCount,
-      consecutive_passes: consecutivePasses,
-      captures_black: capturesBlack,
-      captures_white: capturesWhite,
-      previous_board_hash: previousBoardHash,
-      last_move_at: new Date().toISOString(),
-      result: moveType === 'resign'
-        ? `${myColor === 'black' ? 'W' : 'B'}+Resign`
-        : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('room_id', roomId)
-    .eq('current_player', myColor)
-    .select();
+  const updatePayload = {
+    board: boardToString(newBoard),
+    current_player: nextPlayer,
+    move_count: moveCount,
+    consecutive_passes: consecutivePasses,
+    captures_black: capturesBlack,
+    captures_white: capturesWhite,
+    previous_board_hash: previousBoardHash,
+    last_move_at: new Date().toISOString(),
+    result: moveType === 'resign'
+      ? `${myColor === 'black' ? '백' : '흑'}+기권`
+      : null,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Resign is allowed regardless of whose turn it is, but only if game isn't already over.
+  // All other moves require it to be your turn (optimistic lock).
+  const baseQuery = supabase.from('game_states').update(updatePayload).eq('room_id', roomId);
+  const query = moveType === 'resign'
+    ? baseQuery.is('result', null)
+    : baseQuery.eq('current_player', myColor);
+
+  const { data, error } = await query.select();
 
   if (error) throw error;
   if (!data || data.length === 0) {
@@ -169,6 +172,46 @@ export async function finalizeGame(roomId: string, result: string) {
     .from('rooms')
     .update({ status: 'finished' })
     .eq('id', roomId);
+}
+
+// Request scoring (ask opponent to agree to count)
+export async function requestScoring(roomId: string, requestedBy: Color) {
+  const { error } = await supabase
+    .from('game_states')
+    .update({ scoring_requested_by: requestedBy })
+    .eq('room_id', roomId);
+  if (error) throw error;
+}
+
+// Accept scoring request → transition to scoring phase
+export async function acceptScoring(roomId: string) {
+  await supabase.from('scoring_states').upsert({
+    room_id: roomId,
+    dead_stones: '',
+    black_confirmed: false,
+    white_confirmed: false,
+  });
+  await supabase.from('rooms').update({ status: 'scoring' }).eq('id', roomId);
+  await supabase.from('game_states').update({ scoring_requested_by: null }).eq('room_id', roomId);
+}
+
+// Reject scoring request
+export async function rejectScoring(roomId: string) {
+  await supabase
+    .from('game_states')
+    .update({ scoring_requested_by: null })
+    .eq('room_id', roomId);
+}
+
+// Fetch all moves for a room (for undo replay)
+export async function fetchMoves(roomId: string) {
+  const { data, error } = await supabase
+    .from('moves')
+    .select('*')
+    .eq('room_id', roomId)
+    .order('move_number', { ascending: true });
+  if (error) throw error;
+  return data || [];
 }
 
 // Apply undo - replay moves excluding the last one

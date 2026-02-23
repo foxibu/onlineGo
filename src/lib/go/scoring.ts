@@ -1,5 +1,4 @@
 import { Board, Position, Color, ScoringState } from './types';
-import { BOARD_SIZE } from './constants';
 import { getStone, getNeighbors, isValidPosition } from './board';
 
 // Chinese scoring: Territory = empty intersections surrounded by one color
@@ -17,6 +16,7 @@ function floodFillEmpty(
   start: Position,
   visited: Set<string>
 ): { region: Position[]; borders: Set<Color> } {
+  const size = board.length;
   const region: Position[] = [];
   const borders = new Set<Color>();
   const queue: Position[] = [start];
@@ -26,7 +26,7 @@ function floodFillEmpty(
     const key = `${pos.x},${pos.y}`;
 
     if (visited.has(key)) continue;
-    if (!isValidPosition(pos)) continue;
+    if (!isValidPosition(pos, size)) continue;
 
     const stone = getStone(board, pos);
     if (stone !== null) {
@@ -37,7 +37,7 @@ function floodFillEmpty(
     visited.add(key);
     region.push(pos);
 
-    for (const neighbor of getNeighbors(pos)) {
+    for (const neighbor of getNeighbors(pos, size)) {
       const nKey = `${neighbor.x},${neighbor.y}`;
       if (!visited.has(nKey)) {
         queue.push(neighbor);
@@ -50,11 +50,12 @@ function floodFillEmpty(
 
 // Calculate territory for both colors
 export function calculateTerritory(board: Board): TerritoryResult {
+  const size = board.length;
   const visited = new Set<string>();
   const result: TerritoryResult = { black: [], white: [], neutral: [] };
 
-  for (let y = 0; y < BOARD_SIZE; y++) {
-    for (let x = 0; x < BOARD_SIZE; x++) {
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
       const key = `${x},${y}`;
       if (visited.has(key)) continue;
       if (getStone(board, { x, y }) !== null) continue;
@@ -88,10 +89,11 @@ export function removeDead(board: Board, deadStones: Position[]): Board {
 
 // Count stones of each color on the board
 export function countStones(board: Board): { black: number; white: number } {
+  const size = board.length;
   let black = 0;
   let white = 0;
-  for (let y = 0; y < BOARD_SIZE; y++) {
-    for (let x = 0; x < BOARD_SIZE; x++) {
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
       if (board[y][x] === 'black') black++;
       else if (board[y][x] === 'white') white++;
     }
@@ -116,11 +118,11 @@ export function calculateScore(
   const diff = blackScore - whiteScore;
   let result: string;
   if (diff > 0) {
-    result = `B+${diff}`;
+    result = `흑+${diff}`;
   } else if (diff < 0) {
-    result = `W+${Math.abs(diff)}`;
+    result = `백+${Math.abs(diff)}`;
   } else {
-    result = 'Draw';
+    result = '무승부';
   }
 
   return { black: blackScore, white: whiteScore, result };

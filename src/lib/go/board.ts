@@ -1,9 +1,8 @@
 import { Board, Stone, Position, Color } from './types';
-import { BOARD_SIZE } from './constants';
 
-export function createEmptyBoard(): Board {
-  return Array.from({ length: BOARD_SIZE }, () =>
-    Array.from({ length: BOARD_SIZE }, () => null)
+export function createEmptyBoard(size: number = 19): Board {
+  return Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => null)
   );
 }
 
@@ -21,18 +20,18 @@ export function setStone(board: Board, pos: Position, stone: Stone): Board {
   return newBoard;
 }
 
-export function isValidPosition(pos: Position): boolean {
-  return pos.x >= 0 && pos.x < BOARD_SIZE && pos.y >= 0 && pos.y < BOARD_SIZE;
+export function isValidPosition(pos: Position, size: number = 19): boolean {
+  return pos.x >= 0 && pos.x < size && pos.y >= 0 && pos.y < size;
 }
 
-export function getNeighbors(pos: Position): Position[] {
+export function getNeighbors(pos: Position, size: number = 19): Position[] {
   const dirs = [
     { x: pos.x - 1, y: pos.y },
     { x: pos.x + 1, y: pos.y },
     { x: pos.x, y: pos.y - 1 },
     { x: pos.x, y: pos.y + 1 },
   ];
-  return dirs.filter(isValidPosition);
+  return dirs.filter(p => isValidPosition(p, size));
 }
 
 export function oppositeColor(color: Color): Color {
@@ -46,13 +45,14 @@ export function boardToString(board: Board): string {
   ).join('');
 }
 
-// Deserialize string back to board
+// Deserialize string back to board (auto-detect size from string length)
 export function stringToBoard(str: string): Board {
+  const size = Math.round(Math.sqrt(str.length)); // 9→81, 13→169, 19→361
   const board: Board = [];
-  for (let y = 0; y < BOARD_SIZE; y++) {
+  for (let y = 0; y < size; y++) {
     const row: Stone[] = [];
-    for (let x = 0; x < BOARD_SIZE; x++) {
-      const ch = str[y * BOARD_SIZE + x];
+    for (let x = 0; x < size; x++) {
+      const ch = str[y * size + x];
       row.push(ch === 'B' ? 'black' : ch === 'W' ? 'white' : null);
     }
     board.push(row);

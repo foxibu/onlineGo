@@ -22,9 +22,9 @@ function CreateRoomContent() {
           onClick={() => router.back()}
           className="text-stone-500 hover:text-stone-800"
         >
-          &larr; Back
+          &larr; 뒤로
         </button>
-        <h1 className="text-xl font-bold text-stone-900">Create Room</h1>
+        <h1 className="text-xl font-bold text-stone-900">방 만들기</h1>
       </div>
       <CreateRoomForm nickname={nickname} />
     </main>
@@ -33,7 +33,7 @@ function CreateRoomContent() {
 
 export default function CreatePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-stone-500">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-stone-500">불러오는 중...</div>}>
       <CreateRoomContent />
     </Suspense>
   );

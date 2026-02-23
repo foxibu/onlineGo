@@ -2,9 +2,9 @@ import { GameState, Position, Color } from './types';
 import { createEmptyBoard, boardToString, oppositeColor } from './board';
 import { isLegalMove, executePlace } from './rules';
 
-export function createInitialGameState(): GameState {
+export function createInitialGameState(boardSize: number = 19): GameState {
   return {
-    board: createEmptyBoard(),
+    board: createEmptyBoard(boardSize),
     currentPlayer: 'black',
     moveCount: 0,
     consecutivePasses: 0,

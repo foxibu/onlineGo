@@ -51,6 +51,7 @@ export interface RoomConfig {
   mainTimeSeconds: number;
   byoyomiSeconds: number;
   byoyomiPeriods: number;
+  boardSize: 9 | 13 | 19;
 }
 
 export type RoomStatus = 'waiting' | 'playing' | 'scoring' | 'finished';
