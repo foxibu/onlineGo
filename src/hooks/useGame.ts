@@ -101,23 +101,25 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
   useEffect(() => { whiteTimerRef.current = whiteTimer; }, [whiteTimer]);
 
   // Scoring state management
+  // serverScoringState가 아직 null이어도 isScoring이면 즉시 집 계산 (빈 dead stones로)
   useEffect(() => {
-    if (isScoring && serverScoringState) {
-      const cleanBoard = removeDead(gameState.board, serverScoringState.deadStones);
-      const territory = calculateTerritory(cleanBoard);
-      const stones = countStones(cleanBoard);
+    if (!isScoring) { setLocalScoring(null); return; }
 
-      setLocalScoring({
-        deadStones: serverScoringState.deadStones,
-        territory: { black: territory.black, white: territory.white },
-        score: {
-          black: territory.black.length + stones.black,
-          white: territory.white.length + stones.white + komi,
-        },
-        blackConfirmed: serverScoringState.blackConfirmed,
-        whiteConfirmed: serverScoringState.whiteConfirmed,
-      });
-    }
+    const deadStones = serverScoringState?.deadStones ?? [];
+    const cleanBoard = removeDead(gameState.board, deadStones);
+    const territory = calculateTerritory(cleanBoard);
+    const stones = countStones(cleanBoard);
+
+    setLocalScoring({
+      deadStones,
+      territory: { black: territory.black, white: territory.white },
+      score: {
+        black: territory.black.length + stones.black,
+        white: territory.white.length + stones.white + komi,
+      },
+      blackConfirmed: serverScoringState?.blackConfirmed ?? false,
+      whiteConfirmed: serverScoringState?.whiteConfirmed ?? false,
+    });
   }, [isScoring, serverScoringState, gameState.board, komi]);
 
   // Auto-suggest dead stones via KataGo when scoring starts (dead stone list still empty)

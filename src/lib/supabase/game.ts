@@ -157,8 +157,7 @@ export async function updateScoringState(
 
   await supabase
     .from('scoring_states')
-    .update(update)
-    .eq('room_id', roomId);
+    .upsert({ room_id: roomId, ...update });
 }
 
 // Finalize game result
