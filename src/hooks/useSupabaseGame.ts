@@ -132,8 +132,16 @@ export function useSupabaseGame(roomId: string) {
 
     channels.push(gameChannel);
 
+    // Polling fallback — Supabase Realtime can occasionally drop messages
+    const pollInterval = setInterval(() => {
+      fetchGameState();
+      fetchScoringState();
+      fetchUndoRequests();
+    }, 3000);
+
     return () => {
       channels.forEach(ch => ch.unsubscribe());
+      clearInterval(pollInterval);
     };
   }, [roomId, fetchGameState, fetchScoringState, fetchUndoRequests]);
 

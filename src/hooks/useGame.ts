@@ -123,8 +123,9 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
   }, [isScoring, serverScoringState, gameState.board, komi]);
 
   // Auto-suggest dead stones via KataGo when scoring starts (dead stone list still empty)
+  // Only run for black's client to avoid duplicate DB writes from both players
   useEffect(() => {
-    if (!isScoring || !myColor) return;
+    if (!isScoring || myColor !== 'black') return;
     if (scoringAnalyzedRef.current) return;
     if (serverScoringState && serverScoringState.deadStones.length > 0) return;
 

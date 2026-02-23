@@ -88,8 +88,12 @@ export function useSupabaseRoom(roomId: string) {
 
     channels.push(roomChannel);
 
+    // Polling fallback — Supabase Realtime can occasionally drop messages
+    const pollInterval = setInterval(() => fetchRoom(), 3000);
+
     return () => {
       channels.forEach(ch => ch.unsubscribe());
+      clearInterval(pollInterval);
     };
   }, [roomId, fetchRoom]);
 
