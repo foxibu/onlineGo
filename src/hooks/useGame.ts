@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Color, Position, ScoringState } from '@/lib/go/types';
 import { boardToString } from '@/lib/go/board';
 import { isLegalMove, executePlace } from '@/lib/go/rules';
-import { calculateTerritory, countStones, removeDead, toggleDeadStone } from '@/lib/go/scoring';
+import { calculateTerritory, countStones, removeDead, toggleDeadStone, suggestDeadStones } from '@/lib/go/scoring';
 import { createInitialGameState, placeStone, pass } from '@/lib/go/engine';
 import {
   submitMove, requestUndo, respondToUndo, updateScoringState,
@@ -39,6 +39,8 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   // Prevent double-finalization (both players' effects can trigger simultaneously)
   const finalizedRef = useRef(false);
+  // Prevent running KataGo dead stone suggestion more than once per scoring session
+  const scoringAnalyzedRef = useRef(false);
 
   const isMyTurn = myColor === gameState.currentPlayer;
   const isPlaying = room?.status === 'playing';
@@ -47,10 +49,16 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
 
   const komi = room?.komi ?? 6.5;
 
-  // Reset finalized flag when game restarts or room changes
+  // Reset flags when game restarts or room changes
   useEffect(() => {
     finalizedRef.current = false;
+    scoringAnalyzedRef.current = false;
   }, [roomId]);
+
+  // Reset scoring analysis flag when scoring phase ends
+  useEffect(() => {
+    if (!isScoring) scoringAnalyzedRef.current = false;
+  }, [isScoring]);
 
   // Timer
   const handleTimeout = useCallback(
@@ -110,6 +118,37 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
       });
     }
   }, [isScoring, serverScoringState, gameState.board, komi]);
+
+  // Auto-suggest dead stones via KataGo when scoring starts (dead stone list still empty)
+  useEffect(() => {
+    if (!isScoring || !myColor) return;
+    if (scoringAnalyzedRef.current) return;
+    if (serverScoringState && serverScoringState.deadStones.length > 0) return;
+
+    scoringAnalyzedRef.current = true;
+
+    fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        board: boardToString(gameState.board),
+        boardSize: gameState.board.length,
+        komi,
+        nextPlayer: gameState.currentPlayer,
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error || !data.ownership) return;
+        const suggested = suggestDeadStones(gameState.board, data.ownership);
+        if (suggested.length === 0) return;
+        // Only apply if dead stones are still empty (no manual changes yet)
+        updateScoringState(roomId, suggested).catch(console.error);
+        setToast({ message: `AI가 죽은 돌 ${suggested.length}개를 감지했습니다. 클릭으로 수정하세요.`, type: 'info' });
+      })
+      .catch(() => {}); // silently ignore — players can mark manually
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isScoring, myColor]);
 
   // Finalize game when both players confirm — only once per game
   useEffect(() => {

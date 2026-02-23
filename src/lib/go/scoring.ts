@@ -128,6 +128,24 @@ export function calculateScore(
   return { black: blackScore, white: whiteScore, result };
 }
 
+// Suggest dead stones from KataGo ownership array
+// Black stone in white territory (ownership < -0.5) → likely dead
+// White stone in black territory (ownership > +0.5) → likely dead
+export function suggestDeadStones(board: Board, ownership: number[]): Position[] {
+  const size = board.length;
+  const dead: Position[] = [];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const stone = board[y][x];
+      if (!stone) continue;
+      const ow = ownership[y * size + x];
+      if (stone === 'black' && ow < -0.5) dead.push({ x, y });
+      if (stone === 'white' && ow > 0.5) dead.push({ x, y });
+    }
+  }
+  return dead;
+}
+
 // Create initial scoring state
 export function createScoringState(): ScoringState {
   return {
