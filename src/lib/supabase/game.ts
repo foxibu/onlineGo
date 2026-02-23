@@ -194,6 +194,13 @@ export async function acceptScoring(roomId: string) {
   await supabase.from('game_states').update({ scoring_requested_by: null }).eq('room_id', roomId);
 }
 
+// Cancel scoring — return to playing
+export async function cancelScoring(roomId: string) {
+  await supabase.from('rooms').update({ status: 'playing' }).eq('id', roomId);
+  await supabase.from('scoring_states').delete().eq('room_id', roomId);
+  await supabase.from('game_states').update({ scoring_requested_by: null }).eq('room_id', roomId);
+}
+
 // Reject scoring request
 export async function rejectScoring(roomId: string) {
   await supabase

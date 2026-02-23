@@ -126,6 +126,7 @@ function RoomContent() {
     handleRequestScoring,
     handleAcceptScoring,
     handleRejectScoring,
+    handleCancelScoring,
   } = useGame({ roomId, myColor, nickname });
 
   usePushNotification({ roomId, myColor });
@@ -245,6 +246,7 @@ function RoomContent() {
           onConfirmScore={handleConfirmScore}
           onRequestScoring={handleRequestScoring}
           onToggleTerritory={handleToggleTerritory}
+          onCancelScoring={handleCancelScoring}
         />
       </div>
 
@@ -292,6 +294,7 @@ function RoomContent() {
           onConfirmScore={handleConfirmScore}
           onRequestScoring={handleRequestScoring}
           onToggleTerritory={handleToggleTerritory}
+          onCancelScoring={handleCancelScoring}
         />
         <Chat roomId={roomId} nickname={nickname} />
       </div>

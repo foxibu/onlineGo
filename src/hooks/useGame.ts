@@ -8,7 +8,7 @@ import { calculateTerritory, countStones, removeDead, toggleDeadStone, suggestDe
 import { createInitialGameState, placeStone, pass } from '@/lib/go/engine';
 import {
   submitMove, requestUndo, respondToUndo, updateScoringState,
-  finalizeGame, requestScoring, acceptScoring, rejectScoring,
+  finalizeGame, requestScoring, acceptScoring, rejectScoring, cancelScoring,
   fetchMoves, applyUndo, updatePlayerTimer,
 } from '@/lib/supabase/game';
 import { useSupabaseGame } from './useSupabaseGame';
@@ -471,6 +471,15 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
     }
   }, [roomId]);
 
+  const handleCancelScoring = useCallback(async () => {
+    try {
+      await cancelScoring(roomId);
+      setToast({ message: '계가를 취소하고 대국을 재개합니다', type: 'info' });
+    } catch {
+      setToast({ message: '계가 취소 실패', type: 'error' });
+    }
+  }, [roomId]);
+
   return {
     room,
     gameState,
@@ -505,5 +514,6 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
     handleRequestScoring,
     handleAcceptScoring,
     handleRejectScoring,
+    handleCancelScoring,
   };
 }

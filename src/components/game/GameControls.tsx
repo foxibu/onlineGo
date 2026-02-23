@@ -18,6 +18,7 @@ interface GameControlsProps {
   onConfirmScore: () => void;
   onRequestScoring: () => void;
   onToggleTerritory: () => void;
+  onCancelScoring: () => void;
   undoPending: boolean;
 }
 
@@ -34,6 +35,7 @@ export default function GameControls({
   onConfirmScore,
   onRequestScoring,
   onToggleTerritory,
+  onCancelScoring,
   undoPending,
 }: GameControlsProps) {
   const [showResignModal, setShowResignModal] = useState(false);
@@ -43,14 +45,23 @@ export default function GameControls({
 
   if (isScoring) {
     return (
-      <Button
-        variant="primary"
-        onClick={onConfirmScore}
-        disabled={myScoreConfirmed}
-        className="w-full"
-      >
-        {myScoreConfirmed ? '✓ 확인 완료 — 상대 대기 중' : '계가 확인'}
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="primary"
+          onClick={onConfirmScore}
+          disabled={myScoreConfirmed}
+          className="w-full"
+        >
+          {myScoreConfirmed ? '✓ 확인 완료 — 상대 대기 중' : '계가 확인'}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={onCancelScoring}
+          className="w-full text-xs"
+        >
+          계속 두기
+        </Button>
+      </div>
     );
   }
 

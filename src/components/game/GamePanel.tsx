@@ -44,6 +44,7 @@ interface GamePanelProps {
   onConfirmScore: () => void;
   onRequestScoring: () => void;
   onToggleTerritory: () => void;
+  onCancelScoring: () => void;
 }
 
 export default function GamePanel({
@@ -68,6 +69,7 @@ export default function GamePanel({
   onConfirmScore,
   onRequestScoring,
   onToggleTerritory,
+  onCancelScoring,
 }: GamePanelProps) {
   const isMyTurn = myColor === gameState.currentPlayer;
   const isScoring = roomStatus === 'scoring';
@@ -269,6 +271,7 @@ export default function GamePanel({
         onConfirmScore={onConfirmScore}
         onRequestScoring={onRequestScoring}
         onToggleTerritory={onToggleTerritory}
+        onCancelScoring={onCancelScoring}
         undoPending={undoPending}
       />
 
