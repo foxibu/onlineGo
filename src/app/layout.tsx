@@ -13,13 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Online Go',
-  description: 'Play Go (Baduk) online with friends',
+  title: '온라인 바둑',
+  description: '실시간 온라인 바둑 게임',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Online Go',
+    title: '온라인 바둑',
+  },
+  icons: {
+    apple: '/apple-touch-icon.png',
   },
 };
 

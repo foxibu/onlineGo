@@ -1,7 +1,7 @@
 {
-  "name": "Online Go",
-  "short_name": "Go",
-  "description": "Play Go (Baduk) online with friends",
+  "name": "온라인 바둑",
+  "short_name": "바둑",
+  "description": "실시간 온라인 바둑 게임",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafaf9",
@@ -16,7 +16,8 @@
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

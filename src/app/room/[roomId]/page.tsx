@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Color } from '@/lib/go/types';
 import { joinRoom } from '@/lib/supabase/rooms';
 import { useGame } from '@/hooks/useGame';
+import { usePushNotification } from '@/hooks/usePushNotification';
 import GoBoard from '@/components/board/GoBoard';
 import GamePanel from '@/components/game/GamePanel';
 import Modal from '@/components/ui/Modal';
@@ -126,6 +127,8 @@ function RoomContent() {
     handleAcceptScoring,
     handleRejectScoring,
   } = useGame({ roomId, myColor, nickname });
+
+  usePushNotification({ roomId, myColor });
 
   // Show undo request modal to opponent
   const showUndoModal =

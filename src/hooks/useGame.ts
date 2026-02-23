@@ -14,6 +14,7 @@ import {
 import { useSupabaseGame } from './useSupabaseGame';
 import { useSupabaseRoom } from './useSupabaseRoom';
 import { useTimer } from './useTimer';
+import { notifyOpponent } from './usePushNotification';
 
 interface UseGameOptions {
   roomId: string;
@@ -211,6 +212,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
           myTimer.byoyomiPeriodsLeft,
         ).catch(() => {});
         handleMoveMade(myColor);
+        notifyOpponent(roomId, myColor, '온라인 바둑', '상대방이 착수했습니다. 내 차례입니다.');
       } catch {
         setToast({ message: '착수 실패 - 상대방 차례입니다', type: 'error' });
       } finally {
@@ -247,6 +249,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
         myTimer.byoyomiPeriodsLeft,
       ).catch(() => {});
       handleMoveMade(myColor);
+      notifyOpponent(roomId, myColor, '온라인 바둑', '상대방이 패스했습니다. 내 차례입니다.');
     } catch {
       setToast({ message: '패스 실패', type: 'error' });
     } finally {
@@ -287,6 +290,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
     try {
       await requestUndo(roomId, myColor, gameState.moveCount);
       setToast({ message: '무르기 요청 전송됨', type: 'info' });
+      notifyOpponent(roomId, myColor, '온라인 바둑', '상대방이 무르기를 요청했습니다.');
     } catch {
       setToast({ message: '무르기 요청 실패', type: 'error' });
     }
@@ -442,6 +446,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
     try {
       await requestScoring(roomId, myColor);
       setToast({ message: '계가 신청을 보냈습니다', type: 'info' });
+      notifyOpponent(roomId, myColor, '온라인 바둑', '상대방이 계가를 신청했습니다.');
     } catch {
       setToast({ message: '계가 신청 실패', type: 'error' });
     }
