@@ -41,3 +41,35 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Windows OS
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# KataGo — 모델 가중치 파일 (용량 큼, 서버에서 별도 다운로드)
+katago/models/
+katago/*.bin.gz
+katago/*.bin
+katago/*.gz
+*.bin.gz
+*.bin
+
+# Python (KataGo server.py)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Docker
+.docker/
+
+# Logs
+*.log
