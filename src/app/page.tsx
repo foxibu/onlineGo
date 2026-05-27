@@ -13,24 +13,32 @@ export default function LobbyPage() {
 
   if (!loaded) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-stone-500">불러오는 중...</div>
+      <main className="min-h-screen bg-go-bg flex items-center justify-center">
+        <div className="text-go-t3 text-sm animate-pulse">불러오는 중···</div>
       </main>
     );
   }
 
-  // Nickname entry screen
+  /* ── Nickname entry ──────────────────────────────── */
   if (!nickname) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-sm space-y-6 text-center">
-          <h1 className="text-3xl font-bold text-stone-900">온라인 바둑</h1>
-          <p className="text-stone-600">닉네임을 입력해 시작하세요</p>
+      <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
+        <div className="w-full max-w-xs space-y-8 text-center">
+
+          {/* Logo mark */}
+          <div className="space-y-1">
+            <div
+              className="text-8xl font-bold text-go-gold leading-none select-none"
+              style={{ fontFamily: 'serif', letterSpacing: '-0.04em' }}
+            >
+              碁
+            </div>
+            <h1 className="text-xl font-semibold text-go-t1 tracking-tight">온라인 바둑</h1>
+            <p className="text-go-t3 text-sm">닉네임을 입력해 시작하세요</p>
+          </div>
+
           <form
-            onSubmit={e => {
-              e.preventDefault();
-              if (inputName.trim()) setNickname(inputName.trim());
-            }}
+            onSubmit={e => { e.preventDefault(); if (inputName.trim()) setNickname(inputName.trim()); }}
             className="space-y-3"
           >
             <input
@@ -39,10 +47,10 @@ export default function LobbyPage() {
               onChange={e => setInputName(e.target.value)}
               placeholder="닉네임"
               maxLength={20}
-              className="w-full border border-stone-300 rounded-lg px-4 py-3 text-center text-lg text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-800"
+              className="go-input w-full px-4 py-3 text-center text-base"
               autoFocus
             />
-            <Button type="submit" disabled={!inputName.trim()} className="w-full">
+            <Button type="submit" disabled={!inputName.trim()} className="w-full py-3">
               입장
             </Button>
           </form>
@@ -51,31 +59,42 @@ export default function LobbyPage() {
     );
   }
 
-  // Lobby
+  /* ── Lobby ───────────────────────────────────────── */
   return (
-    <main className="min-h-screen max-w-lg mx-auto p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-stone-900">온라인 바둑</h1>
+    <main className="min-h-screen bg-go-bg max-w-md mx-auto p-4 space-y-5">
+
+      {/* Header */}
+      <div className="flex items-center justify-between pt-2 pb-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-stone-600">{nickname}</span>
+          <span className="text-go-gold font-bold text-lg" style={{ fontFamily: 'serif' }}>碁</span>
+          <h1 className="text-base font-semibold text-go-t1 tracking-tight">온라인 바둑</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-go-t2 bg-go-s1 px-2.5 py-1 rounded-full border border-white/7">
+            {nickname}
+          </span>
           <button
             onClick={() => setNickname('')}
-            className="text-xs text-stone-400 hover:text-stone-600"
+            className="text-xs text-go-t3 hover:text-go-t2 transition-colors"
           >
             변경
           </button>
         </div>
       </div>
 
+      {/* CTA */}
       <Button
         onClick={() => router.push(`/create?nickname=${encodeURIComponent(nickname)}`)}
-        className="w-full"
+        className="w-full py-3"
       >
-        방 만들기
+        새 방 만들기
       </Button>
 
+      {/* Room list */}
       <div>
-        <h2 className="text-sm font-medium text-stone-500 mb-2">대기 중인 방</h2>
+        <h2 className="text-[11px] font-semibold text-go-t3 uppercase tracking-wider mb-3">
+          대기 중인 방
+        </h2>
         <RoomList nickname={nickname} />
       </div>
     </main>

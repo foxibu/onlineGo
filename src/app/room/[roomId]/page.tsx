@@ -140,10 +140,12 @@ function RoomContent() {
   // Nickname input screen (join link with no saved nickname)
   if (needNickname) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-sm space-y-4 text-center">
-          <h2 className="text-xl font-bold text-stone-900">방에 입장하기</h2>
-          <p className="text-stone-500 text-sm">닉네임을 입력하세요</p>
+      <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
+        <div className="w-full max-w-xs space-y-6 text-center">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-go-t1">방에 입장하기</h2>
+            <p className="text-go-t3 text-sm">닉네임을 입력하세요</p>
+          </div>
           <input
             type="text"
             value={nicknameInput}
@@ -152,12 +154,12 @@ function RoomContent() {
             placeholder="닉네임"
             maxLength={20}
             autoFocus
-            className="w-full border border-stone-300 rounded-lg px-4 py-3 text-center text-lg text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-800"
+            className="go-input w-full px-4 py-3 text-center text-base"
           />
-          <Button onClick={handleNicknameJoin} disabled={!nicknameInput.trim()} className="w-full">
+          <Button onClick={handleNicknameJoin} disabled={!nicknameInput.trim()} className="w-full py-3">
             입장
           </Button>
-          <Link href="/" className="block text-stone-400 text-sm hover:underline">
+          <Link href="/" className="block text-go-t3 text-sm hover:text-go-t2 transition-colors">
             로비로 돌아가기
           </Link>
         </div>
@@ -167,9 +169,9 @@ function RoomContent() {
 
   if (roomLoading || joining) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-stone-500">
-          {joining ? '방에 입장 중...' : '불러오는 중...'}
+      <main className="min-h-screen bg-go-bg flex items-center justify-center">
+        <div className="text-go-t3 text-sm animate-pulse">
+          {joining ? '방에 입장 중···' : '불러오는 중···'}
         </div>
       </main>
     );
@@ -177,10 +179,10 @@ function RoomContent() {
 
   if (roomError || joinError) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center space-y-2">
-          <div className="text-red-600 font-medium">{roomError || joinError}</div>
-          <Link href="/" className="text-stone-500 text-sm hover:underline">
+      <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <div className="text-go-red text-sm font-medium">{roomError || joinError}</div>
+          <Link href="/" className="text-go-t3 text-sm hover:text-go-t2 transition-colors">
             로비로 돌아가기
           </Link>
         </div>
@@ -194,20 +196,27 @@ function RoomContent() {
   if (room.status === 'waiting' && isCreator) {
     const joinUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/room/${roomId}?action=join`;
     return (
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center space-y-4 w-full max-w-sm">
-          <h2 className="text-xl font-bold text-stone-900">상대방을 기다리는 중...</h2>
-          <p className="text-stone-500 text-sm">아래 링크를 상대방에게 공유하세요</p>
+      <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
+        <div className="text-center space-y-5 w-full max-w-sm">
+          {/* Animated waiting indicator */}
+          <div className="space-y-2">
+            <div className="text-4xl text-go-gold opacity-80 select-none" style={{ fontFamily: 'serif' }}>碁</div>
+            <h2 className="text-base font-semibold text-go-t1">상대방을 기다리는 중</h2>
+            <p className="text-go-t3 text-sm">아래 링크를 상대방에게 공유하세요</p>
+          </div>
+
+          {/* Link box */}
           <div
-            className="bg-white border border-stone-200 rounded-lg p-3 text-sm text-stone-700 break-all cursor-pointer hover:bg-stone-50"
+            className="go-card p-3 text-xs text-go-t2 break-all cursor-pointer hover:border-white/12 transition-all"
             onClick={handleCopyLink}
           >
             {joinUrl}
           </div>
+
           <button
             onClick={handleCopyLink}
             className={`text-sm font-medium transition-colors ${
-              copied ? 'text-green-600' : 'text-stone-500 hover:text-stone-800'
+              copied ? 'text-go-green' : 'text-go-t3 hover:text-go-gold'
             }`}
           >
             {copied ? '✓ 복사됨!' : '링크 복사'}
@@ -221,7 +230,7 @@ function RoomContent() {
   const whiteName = room.whitePlayer?.nickname || '백';
 
   return (
-    <main className="h-screen flex flex-col lg:flex-row items-center justify-center gap-4 p-2 lg:p-4 overflow-hidden">
+    <main className="h-screen bg-go-bg flex flex-col lg:flex-row items-center justify-center gap-4 p-2 lg:p-4 overflow-hidden">
       {/* Mobile: top timer */}
       <div className="w-full max-w-lg lg:hidden">
         <GamePanel
@@ -350,7 +359,7 @@ function RoomContent() {
             </Link>
           }
         >
-          <p className="text-2xl font-bold text-center">{gameState.result}</p>
+          <p className="text-xl font-semibold text-center text-go-t1 py-2">{gameState.result}</p>
         </Modal>
       )}
 
@@ -366,8 +375,8 @@ export default function RoomPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen flex items-center justify-center">
-          <div className="text-stone-500">불러오는 중...</div>
+        <main className="min-h-screen bg-go-bg flex items-center justify-center">
+          <div className="text-go-t3 text-sm animate-pulse">불러오는 중···</div>
         </main>
       }
     >
