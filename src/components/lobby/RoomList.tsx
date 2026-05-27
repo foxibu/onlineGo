@@ -67,14 +67,18 @@ export default function RoomList({ nickname }: RoomListProps) {
   };
 
   if (loading) {
-    return <div className="text-center text-stone-500 py-8">방 목록 불러오는 중...</div>;
+    return (
+      <div className="text-center text-go-t3 text-sm py-8 animate-pulse">
+        방 목록 불러오는 중···
+      </div>
+    );
   }
 
   if (rooms.length === 0) {
     return (
-      <div className="text-center text-stone-500 py-8">
-        <p>대기 중인 방이 없습니다</p>
-        <p className="text-sm mt-1">방을 만들어 대국을 시작하세요!</p>
+      <div className="text-center py-10 space-y-1">
+        <p className="text-go-t3 text-sm">대기 중인 방이 없습니다</p>
+        <p className="text-go-t3 text-xs">방을 만들어 대국을 시작하세요</p>
       </div>
     );
   }
@@ -84,17 +88,22 @@ export default function RoomList({ nickname }: RoomListProps) {
       {rooms.map(room => (
         <div
           key={room.id}
-          className="flex items-center justify-between bg-white rounded-lg border border-stone-200 p-3"
+          className="go-card flex items-center justify-between p-3 hover:border-white/12 transition-all group"
         >
-          <div>
-            <div className="font-medium text-stone-900">
-              {room.created_by}님의 방
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium text-go-t1 truncate">
+              {room.created_by}
+              <span className="text-go-t3 font-normal">님의 방</span>
             </div>
-            <div className="text-xs text-stone-500">
-              {room.board_size || 19}로 · 덤 {room.komi} · {room.main_time_seconds === 0 ? '무제한' : `${formatTime(room.main_time_seconds)} + ${room.byoyomi_seconds}초×${room.byoyomi_periods}회`}
+            <div className="text-[11px] text-go-t3 mt-0.5 font-mono">
+              {room.board_size || 19}로 · 덤 {room.komi}
+              {' · '}
+              {room.main_time_seconds === 0
+                ? '무제한'
+                : `${formatTime(room.main_time_seconds)} + ${room.byoyomi_seconds}초×${room.byoyomi_periods}회`}
             </div>
           </div>
-          <Button size="sm" onClick={() => handleJoin(room.id)}>
+          <Button size="sm" onClick={() => handleJoin(room.id)} className="ml-3 flex-shrink-0">
             입장
           </Button>
         </div>
