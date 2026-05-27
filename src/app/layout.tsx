@@ -1,15 +1,18 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Noto_Sans_KR, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const notoSansKR = Noto_Sans_KR({
+  variable: '--font-noto',
   subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  preload: false, // CJK — avoid blocking preload
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains',
   subsets: ['latin'],
+  weight: ['400', '500', '700'],
 });
 
 export const metadata: Metadata = {
@@ -31,7 +34,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#1c1917',
+  themeColor: '#0d0c09',
 };
 
 export default function RootLayout({
@@ -42,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-stone-50 text-stone-900`}
+        className={`${notoSansKR.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
       </body>
