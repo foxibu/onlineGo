@@ -9,10 +9,10 @@ interface ToastProps {
   onClose: () => void;
 }
 
-const bgColors = {
-  info: 'bg-stone-800',
-  error: 'bg-red-600',
-  success: 'bg-green-600',
+const styles = {
+  info:    'bg-go-s2 text-go-t1 border border-white/10',
+  error:   'bg-go-red  text-go-t1 border border-go-red/50',
+  success: 'bg-go-green text-go-t1 border border-go-green/50',
 };
 
 export default function Toast({
@@ -33,9 +33,13 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-white text-sm shadow-lg transition-opacity duration-300 ${
-        visible ? 'opacity-100' : 'opacity-0'
-      } ${bgColors[type]}`}
+      className={`
+        fixed top-4 left-1/2 -translate-x-1/2 z-50
+        px-4 py-2 rounded-lg text-sm
+        transition-all duration-300
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}
+        ${styles[type]}
+      `}
     >
       {message}
     </div>

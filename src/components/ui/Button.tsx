@@ -8,16 +8,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: 'bg-stone-800 text-white hover:bg-stone-700 active:bg-stone-900',
-  secondary: 'bg-stone-200 text-stone-800 hover:bg-stone-300 active:bg-stone-400',
-  danger: 'bg-red-600 text-white hover:bg-red-500 active:bg-red-700',
-  ghost: 'bg-transparent text-stone-700 hover:bg-stone-100 active:bg-stone-200',
+  primary:   'bg-go-gold text-go-bg font-semibold hover:bg-go-gold2 active:opacity-90',
+  secondary: 'bg-go-s2 text-go-t1 border border-white/10 hover:bg-go-s3 hover:border-white/15',
+  danger:    'bg-go-red text-go-t1 hover:opacity-90 active:opacity-80',
+  ghost:     'bg-transparent text-go-t2 hover:bg-go-s1 hover:text-go-t1',
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base',
 };
 
 export default function Button({
@@ -30,7 +30,11 @@ export default function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`rounded-lg font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`
+        rounded-lg font-medium transition-all duration-150
+        disabled:opacity-30 disabled:cursor-not-allowed
+        ${variants[variant]} ${sizes[size]} ${className}
+      `}
       disabled={disabled}
       {...props}
     >

@@ -12,25 +12,29 @@ interface ModalProps {
 
 export default function Modal({ open, onClose, title, children, actions }: ModalProps) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    if (open) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
   }, [open]);
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
-        <h2 className="text-lg font-bold text-stone-900 mb-3">{title}</h2>
-        <div className="text-stone-700 mb-4">{children}</div>
-        {actions && <div className="flex gap-2 justify-end">{actions}</div>}
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      {/* Panel */}
+      <div className="go-card-elevated relative max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
+        <h2 className="text-base font-semibold text-go-t1 mb-3 tracking-tight">{title}</h2>
+        <div className="text-go-t2 text-sm leading-relaxed mb-5">{children}</div>
+        {actions && (
+          <div className="flex gap-2 justify-end border-t border-white/7 pt-4">
+            {actions}
+          </div>
+        )}
       </div>
     </div>
   );
