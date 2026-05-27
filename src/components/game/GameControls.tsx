@@ -46,19 +46,10 @@ export default function GameControls({
   if (isScoring) {
     return (
       <div className="flex flex-col gap-2">
-        <Button
-          variant="primary"
-          onClick={onConfirmScore}
-          disabled={myScoreConfirmed}
-          className="w-full"
-        >
+        <Button variant="primary" onClick={onConfirmScore} disabled={myScoreConfirmed} className="w-full">
           {myScoreConfirmed ? '✓ 확인 완료 — 상대 대기 중' : '계가 확인'}
         </Button>
-        <Button
-          variant="ghost"
-          onClick={onCancelScoring}
-          className="w-full text-xs"
-        >
+        <Button variant="ghost" onClick={onCancelScoring} className="w-full text-xs">
           계속 두기
         </Button>
       </div>
@@ -67,14 +58,14 @@ export default function GameControls({
 
   return (
     <>
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2">
         <Button
           variant="secondary"
           onClick={onPass}
           disabled={!isMyTurn || isSubmitting}
           className="flex-1"
         >
-          {isSubmitting ? '...' : '패스'}
+          {isSubmitting ? '···' : '패스'}
         </Button>
         <Button
           variant="ghost"
@@ -82,7 +73,7 @@ export default function GameControls({
           disabled={undoPending || isSubmitting}
           className="flex-1"
         >
-          {undoPending ? '대기 중...' : '무르기'}
+          {undoPending ? '대기 중' : '무르기'}
         </Button>
         <Button
           variant="danger"
@@ -93,21 +84,26 @@ export default function GameControls({
           기권
         </Button>
       </div>
+
       <div className="flex gap-2">
-        <Button
-          variant="ghost"
+        {/* Territory toggle — amber tint when active */}
+        <button
           onClick={onToggleTerritory}
-          className={`flex-1 text-xs ${showTerritory ? 'bg-amber-100 border-amber-400 text-amber-800' : ''}`}
+          className={`
+            flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150
+            ${showTerritory
+              ? 'bg-go-gold/15 text-go-gold border border-go-gold/30'
+              : 'bg-transparent text-go-t3 border border-white/7 hover:bg-go-s1 hover:text-go-t2'}
+          `}
         >
           형세판단
-        </Button>
-        <Button
-          variant="ghost"
+        </button>
+        <button
           onClick={() => setShowScoringModal(true)}
-          className="flex-1 text-xs"
+          className="flex-1 px-3 py-1.5 rounded-lg text-xs font-medium text-go-t3 border border-white/7 hover:bg-go-s1 hover:text-go-t2 transition-all duration-150"
         >
           계가 신청
-        </Button>
+        </button>
       </div>
 
       <Modal
@@ -116,18 +112,8 @@ export default function GameControls({
         title="기권하시겠습니까?"
         actions={
           <>
-            <Button variant="ghost" onClick={() => setShowResignModal(false)}>
-              취소
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setShowResignModal(false);
-                onResign();
-              }}
-            >
-              기권
-            </Button>
+            <Button variant="ghost" onClick={() => setShowResignModal(false)}>취소</Button>
+            <Button variant="danger" onClick={() => { setShowResignModal(false); onResign(); }}>기권</Button>
           </>
         }
       >
@@ -140,17 +126,8 @@ export default function GameControls({
         title="계가 신청"
         actions={
           <>
-            <Button variant="ghost" onClick={() => setShowScoringModal(false)}>
-              취소
-            </Button>
-            <Button
-              onClick={() => {
-                setShowScoringModal(false);
-                onRequestScoring();
-              }}
-            >
-              신청
-            </Button>
+            <Button variant="ghost" onClick={() => setShowScoringModal(false)}>취소</Button>
+            <Button onClick={() => { setShowScoringModal(false); onRequestScoring(); }}>신청</Button>
           </>
         }
       >

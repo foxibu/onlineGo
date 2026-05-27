@@ -116,7 +116,7 @@ export default function Chat({ roomId, nickname }: ChatProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 lg:static bg-stone-800 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-stone-700 text-sm"
+        className="fixed bottom-4 right-4 lg:static bg-go-s2 text-go-t2 border border-white/10 rounded-full w-10 h-10 flex items-center justify-center hover:bg-go-s3 hover:text-go-t1 transition-all text-sm"
         title="채팅"
       >
         💬
@@ -125,45 +125,52 @@ export default function Chat({ roomId, nickname }: ChatProps) {
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-lg flex flex-col h-60 lg:h-80">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-stone-100">
-        <span className="text-xs font-medium text-stone-600">채팅</span>
+    <div className="go-card flex flex-col h-60 lg:h-80">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/7">
+        <span className="text-[11px] font-semibold text-go-t3 uppercase tracking-wider">채팅</span>
         <button
           onClick={() => setIsOpen(false)}
-          className="text-stone-400 hover:text-stone-600 text-xs"
+          className="text-go-t3 hover:text-go-t2 text-xs transition-colors"
         >
           닫기
         </button>
       </div>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5">
         {messages.map(msg => (
-          <div key={msg.id} className="text-xs">
-            <span className={`font-medium ${msg.sender === nickname ? 'text-amber-700' : 'text-stone-800'}`}>
-              {msg.sender}:
-            </span>{' '}
-            <span className="text-stone-600">{msg.message}</span>
+          <div key={msg.id} className="text-xs leading-relaxed">
+            <span className={`font-semibold ${msg.sender === nickname ? 'text-go-gold' : 'text-go-t2'}`}>
+              {msg.sender}
+            </span>
+            <span className="text-go-t3 mx-1">·</span>
+            <span className="text-go-t2">{msg.message}</span>
           </div>
         ))}
         {messages.length === 0 && (
-          <div className="text-xs text-stone-400 text-center py-4">아직 메시지가 없습니다</div>
+          <div className="text-xs text-go-t3 text-center py-4">아직 메시지가 없습니다</div>
         )}
       </div>
+
       {sendError && (
-        <div className="text-xs text-red-500 px-3 py-1">{sendError}</div>
+        <div className="text-xs text-go-red px-3 py-1">{sendError}</div>
       )}
-      <form onSubmit={handleSend} className="flex border-t border-stone-100">
+
+      {/* Input */}
+      <form onSubmit={handleSend} className="flex border-t border-white/7">
         <input
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="메시지 입력..."
           maxLength={200}
-          className="flex-1 px-3 py-2 text-xs text-stone-800 bg-transparent focus:outline-none"
+          className="flex-1 px-3 py-2 text-xs text-go-t1 bg-transparent focus:outline-none placeholder:text-go-t3"
         />
         <button
           type="submit"
           disabled={!input.trim()}
-          className="px-3 py-2 text-xs font-medium text-stone-800 hover:bg-stone-50 disabled:opacity-30"
+          className="px-3 py-2 text-xs font-medium text-go-gold hover:text-go-gold2 disabled:opacity-30 transition-colors"
         >
           전송
         </button>

@@ -93,23 +93,23 @@ export default function GamePanel({
       />
 
       {/* Move count / turn indicator */}
-      <div className="text-center text-xs text-stone-500">
-        {gameState.moveCount}수
+      <div className="flex items-center justify-center gap-2 text-xs">
+        <span className="text-go-t3 font-mono">{gameState.moveCount}수</span>
         {isMyTurn && !isScoring && !isFinished && (
-          <span className="ml-2 text-amber-600 font-medium">내 차례</span>
+          <span className="text-go-gold font-medium text-[11px] bg-go-gold/10 border border-go-gold/25 px-2 py-0.5 rounded-full">내 차례</span>
         )}
         {isFinished && gameState.result && (
-          <span className="ml-2 text-stone-800 font-bold">{gameState.result}</span>
+          <span className="text-go-t1 font-semibold">{gameState.result}</span>
         )}
       </div>
 
       {/* Territory estimation panel */}
       {showTerritory && territoryEstimate && !isScoring && !isFinished && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-2.5 text-xs">
+        <div className="go-card p-3 space-y-2.5 text-xs">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <span className="font-bold text-stone-800">형세판단</span>
-            <span className="text-stone-400 text-[10px]">중국식 · 집 + 살아있는 돌</span>
+            <span className="font-semibold text-go-t1 text-[11px] uppercase tracking-wider">형세판단</span>
+            <span className="text-go-t3 text-[10px]">중국식 · 집 + 살아있는 돌</span>
           </div>
 
           {/* Score rows */}
@@ -118,45 +118,37 @@ export default function GamePanel({
             const whiteLeads = territoryEstimate.whiteTotal > territoryEstimate.blackTotal;
             return (
               <>
-                {/* Black row */}
-                <div className={`rounded-lg px-2.5 py-2 ${blackLeads ? 'bg-stone-800 text-white' : 'bg-white border border-stone-200 text-stone-700'}`}>
+                {/* Black */}
+                <div className={`rounded-lg px-2.5 py-2 ${blackLeads ? 'bg-go-s3 border border-go-gold/30' : 'bg-go-s0 border border-white/7'}`}>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className={`inline-block w-3 h-3 rounded-full flex-shrink-0 ${blackLeads ? 'bg-white' : 'bg-stone-800'}`} />
-                    <span className="font-semibold">흑</span>
-                    {blackLeads && (
-                      <span className="ml-auto text-[10px] text-amber-300 font-medium">우세</span>
-                    )}
+                    <span className="w-3 h-3 rounded-full bg-[#1a1a1a] border border-white/20 flex-shrink-0" />
+                    <span className="font-semibold text-go-t1">흑</span>
+                    {blackLeads && <span className="ml-auto text-[10px] text-go-gold font-semibold">우세</span>}
                   </div>
-                  <div className={`flex gap-1 flex-wrap ${blackLeads ? 'text-stone-300' : 'text-stone-500'}`}>
-                    <span>집 <b className={blackLeads ? 'text-white' : 'text-stone-800'}>{territoryEstimate.blackTerritory}</b></span>
+                  <div className="flex gap-1 flex-wrap text-go-t2">
+                    <span>집 <b className="text-go-t1">{territoryEstimate.blackTerritory}</b></span>
                     <span>+</span>
-                    <span>돌 <b className={blackLeads ? 'text-white' : 'text-stone-800'}>{territoryEstimate.blackStones}</b></span>
+                    <span>돌 <b className="text-go-t1">{territoryEstimate.blackStones}</b></span>
                     <span>=</span>
-                    <span className={`font-bold text-sm ${blackLeads ? 'text-white' : 'text-stone-800'}`}>
-                      {fmtScore(territoryEstimate.blackTotal)}점
-                    </span>
+                    <b className="text-go-t1 text-sm">{fmtScore(territoryEstimate.blackTotal)}점</b>
                   </div>
                 </div>
 
-                {/* White row */}
-                <div className={`rounded-lg px-2.5 py-2 ${whiteLeads ? 'bg-stone-800 text-white' : 'bg-white border border-stone-200 text-stone-700'}`}>
+                {/* White */}
+                <div className={`rounded-lg px-2.5 py-2 ${whiteLeads ? 'bg-go-s3 border border-go-gold/30' : 'bg-go-s0 border border-white/7'}`}>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className={`inline-block w-3 h-3 rounded-full flex-shrink-0 border ${whiteLeads ? 'bg-stone-300 border-stone-400' : 'bg-white border-stone-400'}`} />
-                    <span className="font-semibold">백</span>
-                    {whiteLeads && (
-                      <span className="ml-auto text-[10px] text-amber-300 font-medium">우세</span>
-                    )}
+                    <span className="w-3 h-3 rounded-full bg-go-t1 border border-white/40 flex-shrink-0" />
+                    <span className="font-semibold text-go-t1">백</span>
+                    {whiteLeads && <span className="ml-auto text-[10px] text-go-gold font-semibold">우세</span>}
                   </div>
-                  <div className={`flex gap-1 flex-wrap ${whiteLeads ? 'text-stone-300' : 'text-stone-500'}`}>
-                    <span>집 <b className={whiteLeads ? 'text-white' : 'text-stone-800'}>{territoryEstimate.whiteTerritory}</b></span>
+                  <div className="flex gap-1 flex-wrap text-go-t2">
+                    <span>집 <b className="text-go-t1">{territoryEstimate.whiteTerritory}</b></span>
                     <span>+</span>
-                    <span>돌 <b className={whiteLeads ? 'text-white' : 'text-stone-800'}>{territoryEstimate.whiteStones}</b></span>
+                    <span>돌 <b className="text-go-t1">{territoryEstimate.whiteStones}</b></span>
                     <span>+</span>
-                    <span>덤 <b className={whiteLeads ? 'text-white' : 'text-stone-800'}>{territoryEstimate.komi}</b></span>
+                    <span>덤 <b className="text-go-t1">{territoryEstimate.komi}</b></span>
                     <span>=</span>
-                    <span className={`font-bold text-sm ${whiteLeads ? 'text-white' : 'text-stone-800'}`}>
-                      {fmtScore(territoryEstimate.whiteTotal)}점
-                    </span>
+                    <b className="text-go-t1 text-sm">{fmtScore(territoryEstimate.whiteTotal)}점</b>
                   </div>
                 </div>
 
@@ -167,13 +159,13 @@ export default function GamePanel({
                   const diff = territoryEstimate.blackTotal - territoryEstimate.whiteTotal;
                   return (
                     <div className="space-y-1">
-                      <div className="flex h-2.5 rounded-full overflow-hidden border border-stone-200">
-                        <div className="bg-stone-800 transition-all duration-500" style={{ width: `${bPct}%` }} />
-                        <div className="bg-stone-200 transition-all duration-500" style={{ width: `${100 - bPct}%` }} />
+                      <div className="flex h-2 rounded-full overflow-hidden border border-white/10">
+                        <div className="bg-[#1a1a1a] transition-all duration-500" style={{ width: `${bPct}%` }} />
+                        <div className="bg-go-t1/70 transition-all duration-500" style={{ width: `${100 - bPct}%` }} />
                       </div>
-                      <div className="flex justify-between text-[10px] text-stone-500">
+                      <div className="flex justify-between text-[10px] text-go-t3">
                         <span>흑</span>
-                        <span className="font-medium text-stone-700">
+                        <span className="text-go-t2">
                           {Math.abs(diff) < 0.1 ? '균형' : diff > 0
                             ? `흑 ${fmtScore(diff)}점 우세`
                             : `백 ${fmtScore(Math.abs(diff))}점 우세`}
@@ -187,23 +179,23 @@ export default function GamePanel({
             );
           })()}
 
-          {/* Neutral / dame */}
-          <div className="flex items-center justify-between text-[10px] text-stone-400 border-t border-amber-200 pt-2">
-            <span>미결 지역(다메): {territoryEstimate.neutralCount}칸</span>
-            <span>· 판세는 {gameState.moveCount}수 기준</span>
+          {/* Dame / neutral */}
+          <div className="flex justify-between text-[10px] text-go-t3 border-t border-white/7 pt-2">
+            <span>다메: {territoryEstimate.neutralCount}칸</span>
+            <span>{gameState.moveCount}수 기준</span>
           </div>
 
-          {/* KataGo AI analysis section */}
+          {/* KataGo */}
           {isAnalyzing && (
-            <div className="flex items-center gap-1.5 border-t border-amber-200 pt-2">
-              <span className="text-[10px] text-stone-400 animate-pulse">AI 분석 중...</span>
+            <div className="border-t border-white/7 pt-2">
+              <span className="text-[10px] text-go-t3 animate-pulse">AI 분석 중···</span>
             </div>
           )}
           {!isAnalyzing && katagoResult && (
-            <div className="border-t border-amber-200 pt-2 space-y-1.5">
-              <div className="flex items-center justify-between text-[10px] text-stone-500">
-                <span className="font-semibold text-stone-700">AI 분석 (KataGo)</span>
-                <span className="text-stone-400">
+            <div className="border-t border-white/7 pt-2 space-y-1.5">
+              <div className="flex justify-between text-[10px]">
+                <span className="font-semibold text-go-gold">AI (KataGo)</span>
+                <span className="text-go-t2">
                   {katagoResult.scoreLead > 0
                     ? `흑 ${Math.abs(katagoResult.scoreLead).toFixed(1)}점 우세`
                     : katagoResult.scoreLead < 0
@@ -211,30 +203,19 @@ export default function GamePanel({
                     : '균형'}
                 </span>
               </div>
-              {/* Winrate bar */}
-              <div>
-                <div className="flex h-3 rounded-full overflow-hidden border border-stone-200">
-                  <div
-                    className="bg-stone-800 transition-all duration-500"
-                    style={{ width: `${(katagoResult.winrate * 100).toFixed(1)}%` }}
-                  />
-                  <div
-                    className="bg-stone-200 transition-all duration-500"
-                    style={{ width: `${(100 - katagoResult.winrate * 100).toFixed(1)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-stone-500 mt-0.5">
-                  <span>흑 {(katagoResult.winrate * 100).toFixed(0)}%</span>
-                  <span>백 {(100 - katagoResult.winrate * 100).toFixed(0)}%</span>
-                </div>
+              <div className="flex h-2 rounded-full overflow-hidden border border-white/10">
+                <div className="bg-[#1a1a1a] transition-all duration-500" style={{ width: `${(katagoResult.winrate * 100).toFixed(1)}%` }} />
+                <div className="bg-go-t1/70 transition-all duration-500" style={{ width: `${(100 - katagoResult.winrate * 100).toFixed(1)}%` }} />
+              </div>
+              <div className="flex justify-between text-[10px] text-go-t3">
+                <span>흑 {(katagoResult.winrate * 100).toFixed(0)}%</span>
+                <span>백 {(100 - katagoResult.winrate * 100).toFixed(0)}%</span>
               </div>
             </div>
           )}
 
-          {/* Criteria note */}
-          <p className="text-[10px] text-stone-400 leading-relaxed border-t border-amber-200 pt-2">
-            ※ 현재 돌이 모두 살아있다고 가정합니다.<br />
-            죽은 돌이 있으면 실제 결과와 다를 수 있습니다.
+          <p className="text-[10px] text-go-t3 border-t border-white/7 pt-2">
+            ※ 모든 돌이 살아있다고 가정합니다
           </p>
         </div>
       )}
