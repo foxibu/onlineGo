@@ -15,6 +15,7 @@ import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Toast from '@/components/ui/Toast';
 import Chat from '@/components/game/Chat';
+import Spinner from '@/components/ui/Spinner';
 
 function RoomContent() {
   const params = useParams();
@@ -171,10 +172,11 @@ function RoomContent() {
 
   if (roomLoading || joining) {
     return (
-      <main className="min-h-screen bg-go-bg flex items-center justify-center">
-        <div className="text-go-t3 text-sm animate-pulse">
+      <main className="min-h-screen bg-go-bg flex flex-col items-center justify-center gap-3">
+        <Spinner size="lg" />
+        <p className="text-go-t3 text-sm">
           {joining ? '방에 입장 중···' : '불러오는 중···'}
-        </div>
+        </p>
       </main>
     );
   }
@@ -421,8 +423,9 @@ export default function RoomPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-go-bg flex items-center justify-center">
-          <div className="text-go-t3 text-sm animate-pulse">불러오는 중···</div>
+        <main className="min-h-screen bg-go-bg flex flex-col items-center justify-center gap-3">
+          <Spinner size="lg" />
+          <p className="text-go-t3 text-sm">불러오는 중···</p>
         </main>
       }
     >

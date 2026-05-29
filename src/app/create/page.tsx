@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import CreateRoomForm from '@/components/lobby/CreateRoomForm';
+import Spinner from '@/components/ui/Spinner';
 
 function CreateRoomContent() {
   const searchParams = useSearchParams();
@@ -40,9 +41,9 @@ export default function CreatePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-go-bg flex items-center justify-center text-go-t3 text-sm animate-pulse">
-          불러오는 중···
-        </div>
+        <main className="min-h-screen bg-go-bg flex items-center justify-center">
+          <Spinner size="lg" />
+        </main>
       }
     >
       <CreateRoomContent />

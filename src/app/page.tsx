@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useNickname } from '@/hooks/useNickname';
 import RoomList from '@/components/lobby/RoomList';
 import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
 
 export default function LobbyPage() {
   const { nickname, setNickname, loaded } = useNickname();
@@ -14,7 +15,7 @@ export default function LobbyPage() {
   if (!loaded) {
     return (
       <main className="min-h-screen bg-go-bg flex items-center justify-center">
-        <div className="text-go-t3 text-sm animate-pulse">불러오는 중···</div>
+        <Spinner size="lg" />
       </main>
     );
   }

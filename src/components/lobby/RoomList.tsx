@@ -63,8 +63,16 @@ export default function RoomList({ nickname }: RoomListProps) {
 
   if (loading) {
     return (
-      <div className="text-center text-go-t3 text-sm py-8 animate-pulse">
-        방 목록 불러오는 중···
+      <div className="space-y-2">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="go-card p-3 animate-pulse">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-3 h-3 rounded-full bg-go-s3" />
+              <div className="h-3 bg-go-s3 rounded w-32" />
+            </div>
+            <div className="h-2.5 bg-go-s2 rounded w-48" />
+          </div>
+        ))}
       </div>
     );
   }
