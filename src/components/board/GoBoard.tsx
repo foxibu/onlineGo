@@ -486,19 +486,19 @@ export default function GoBoard({
             <button
               onClick={handleConfirmPlace}
               disabled={isSubmitting}
-              className="px-6 py-2 bg-stone-800 text-white rounded-lg font-semibold text-sm hover:bg-stone-700 active:bg-stone-900 disabled:opacity-50 transition-colors"
+              className="px-6 py-2 bg-go-gold text-go-bg rounded-lg font-semibold text-sm hover:bg-go-gold2 disabled:opacity-30 transition-colors"
             >
-              {isSubmitting ? '...' : '착수'}
+              {isSubmitting ? '···' : '착수'}
             </button>
             <button
               onClick={() => setPendingPos(null)}
-              className="px-4 py-2 text-stone-600 border border-stone-300 rounded-lg text-sm hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 text-go-t3 border border-white/10 rounded-lg text-sm hover:bg-go-s1 hover:text-go-t2 transition-colors"
             >
               취소
             </button>
           </>
         ) : isMyTurn && !isScoring ? (
-          <span className="text-xs text-stone-400">위치를 선택하세요</span>
+          <span className="text-xs text-go-t3">위치를 선택하세요</span>
         ) : null}
       </div>
     </div>
