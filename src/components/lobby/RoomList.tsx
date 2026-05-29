@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { listWaitingRooms } from '@/lib/supabase/rooms';
 import { supabase } from '@/lib/supabase/client';
 import Button from '../ui/Button';
+import { formatRelativeTime } from '@/lib/utils/time';
 
 interface RoomListProps {
   nickname: string;
@@ -56,12 +57,6 @@ export default function RoomList({ nickname }: RoomListProps) {
     };
   }, []);
 
-  const formatTime = (seconds: number) => {
-    if (seconds === 0) return '무제한';
-    const mins = Math.floor(seconds / 60);
-    return `${mins}분`;
-  };
-
   const handleJoin = (roomId: string) => {
     router.push(`/room/${roomId}?action=join&nickname=${encodeURIComponent(nickname)}`);
   };
@@ -76,7 +71,13 @@ export default function RoomList({ nickname }: RoomListProps) {
 
   if (rooms.length === 0) {
     return (
-      <div className="text-center py-10 space-y-1">
+      <div className="text-center py-12 space-y-2">
+        <div
+          className="text-5xl text-go-gold/50 select-none"
+          style={{ fontFamily: 'serif' }}
+        >
+          碁
+        </div>
         <p className="text-go-t3 text-sm">대기 중인 방이 없습니다</p>
         <p className="text-go-t3 text-xs">방을 만들어 대국을 시작하세요</p>
       </div>
@@ -85,29 +86,57 @@ export default function RoomList({ nickname }: RoomListProps) {
 
   return (
     <div className="space-y-2">
-      {rooms.map(room => (
-        <div
-          key={room.id}
-          className="go-card flex items-center justify-between p-3 hover:border-white/12 transition-all group"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-go-t1 truncate">
-              {room.created_by}
-              <span className="text-go-t3 font-normal">님의 방</span>
+      {rooms.map(room => {
+        const creatorColor = room.players.find(p => p.nickname === room.created_by)?.color ?? 'black';
+
+        return (
+          <div
+            key={room.id}
+            className="go-card flex items-center justify-between p-3 hover:border-white/12 transition-all"
+          >
+            <div className="min-w-0 flex-1">
+              {/* 방 제목 행 */}
+              <div className="flex items-center gap-2 mb-1">
+                <div
+                  className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                    creatorColor === 'black'
+                      ? 'bg-[#1a1a1a] border border-white/20'
+                      : 'bg-[#f0ebe0] border border-white/40'
+                  }`}
+                />
+                <span className="text-sm font-medium text-go-t1 truncate">
+                  {room.created_by}
+                  <span className="text-go-t3 font-normal">님의 방</span>
+                </span>
+              </div>
+
+              {/* 메타 행 */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="bg-go-s2 text-go-t2 text-[10px] font-mono px-1.5 py-0.5 rounded">
+                  {room.board_size || 19}로
+                </span>
+                <span className="text-[11px] text-go-t3 font-mono">
+                  덤 {room.komi}
+                </span>
+                <span className="text-go-t3/40 text-[10px]">·</span>
+                <span className="text-[11px] text-go-t3 font-mono">
+                  {room.main_time_seconds === 0
+                    ? '무제한'
+                    : `${Math.floor(room.main_time_seconds / 60)}분+${room.byoyomi_seconds}초×${room.byoyomi_periods}`}
+                </span>
+                <span className="text-go-t3/40 text-[10px]">·</span>
+                <span className="text-[11px] text-go-t3">
+                  {formatRelativeTime(room.created_at)}
+                </span>
+              </div>
             </div>
-            <div className="text-[11px] text-go-t3 mt-0.5 font-mono">
-              {room.board_size || 19}로 · 덤 {room.komi}
-              {' · '}
-              {room.main_time_seconds === 0
-                ? '무제한'
-                : `${formatTime(room.main_time_seconds)} + ${room.byoyomi_seconds}초×${room.byoyomi_periods}회`}
-            </div>
+
+            <Button size="sm" onClick={() => handleJoin(room.id)} className="ml-3 flex-shrink-0">
+              입장
+            </Button>
           </div>
-          <Button size="sm" onClick={() => handleJoin(room.id)} className="ml-3 flex-shrink-0">
-            입장
-          </Button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
