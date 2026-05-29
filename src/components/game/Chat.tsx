@@ -131,12 +131,14 @@ export default function Chat({ roomId, nickname, hideToggle = false }: ChatProps
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/7">
         <span className="text-[11px] font-semibold text-go-t3 uppercase tracking-wider">채팅</span>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="text-go-t3 hover:text-go-t2 text-xs transition-colors"
-        >
-          닫기
-        </button>
+        {!hideToggle && (
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-go-t3 hover:text-go-t2 text-xs transition-colors"
+          >
+            닫기
+          </button>
+        )}
       </div>
 
       {/* Messages */}

@@ -1,5 +1,3 @@
-'use client';
-
 interface TerritoryEstimate {
   blackTerritory: number;
   whiteTerritory: number;

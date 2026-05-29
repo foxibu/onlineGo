@@ -105,15 +105,18 @@ export default function MobileGameBar({
                 : 'bg-[#f0ebe0] border border-white/40'
             }`}
           />
+          <span className={`text-sm font-medium truncate transition-colors flex-1 min-w-0 ${isMyTurn ? 'text-go-t1' : 'text-go-t2'}`}>
+            {myName}
+          </span>
           <span
-            className={`font-mono font-bold text-base tabular-nums transition-colors ${
+            className={`font-mono font-bold text-base tabular-nums transition-colors flex-shrink-0 ${
               isLowTime ? 'text-go-red' : isMyTurn ? 'text-go-gold' : 'text-go-t3'
             }`}
           >
             {formatTime(myTimer)}
           </span>
           {isMyTurn && !isScoring && (
-            <span className="text-[10px] text-go-gold bg-go-gold/10 border border-go-gold/25 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] text-go-gold bg-go-gold/10 border border-go-gold/25 px-1.5 py-0.5 rounded-full flex-shrink-0">
               내 차례
             </span>
           )}
