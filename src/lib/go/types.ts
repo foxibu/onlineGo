@@ -55,3 +55,20 @@ export interface RoomConfig {
 }
 
 export type RoomStatus = 'waiting' | 'playing' | 'scoring' | 'finished';
+
+export interface TerritoryEstimate {
+  blackTerritory: number;
+  whiteTerritory: number;
+  neutralCount: number;
+  blackStones: number;
+  whiteStones: number;
+  blackTotal: number;
+  whiteTotal: number;
+  komi: number;
+}
+
+export interface KatagoResult {
+  ownership: number[];
+  scoreLead: number;
+  winrate: number;
+}

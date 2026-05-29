@@ -247,8 +247,8 @@ function RoomContent() {
 
   const blackName = room.blackPlayer?.nickname || '흑';
   const whiteName = room.whitePlayer?.nickname || '백';
-  const topColor: Color = myColor === 'white' ? 'black' : 'white';
-  const bottomColor: Color = myColor === 'white' ? 'white' : 'black';
+  const topColor: Color = myColor === 'black' ? 'white' : 'black';
+  const bottomColor: Color = myColor === 'black' ? 'black' : 'white';
 
   return (
     <main className="h-screen bg-go-bg overflow-hidden">

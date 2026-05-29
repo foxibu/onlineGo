@@ -1,27 +1,10 @@
 'use client';
 
-import { GameState, TimerState, Color, ScoringState, RoomStatus } from '@/lib/go/types';
+import { GameState, TimerState, Color, ScoringState, RoomStatus, TerritoryEstimate, KatagoResult } from '@/lib/go/types';
 import Timer from './Timer';
 import GameControls from './GameControls';
 import ScoringOverlay from './ScoringOverlay';
 import TerritoryPanel from './TerritoryPanel';
-
-interface TerritoryEstimate {
-  blackTerritory: number;
-  whiteTerritory: number;
-  neutralCount: number;
-  blackStones: number;
-  whiteStones: number;
-  blackTotal: number;
-  whiteTotal: number;
-  komi: number;
-}
-
-interface KatagoResult {
-  ownership: number[];
-  scoreLead: number;  // positive = black leads
-  winrate: number;    // black's win probability
-}
 
 interface GamePanelProps {
   gameState: GameState;

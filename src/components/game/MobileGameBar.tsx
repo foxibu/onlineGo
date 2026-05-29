@@ -2,30 +2,13 @@
 'use client';
 
 import { useState } from 'react';
-import { TimerState, Color, ScoringState } from '@/lib/go/types';
+import { TimerState, Color, ScoringState, TerritoryEstimate, KatagoResult } from '@/lib/go/types';
 import { formatTime } from '@/lib/timer/timerLogic';
 import ScoringOverlay from './ScoringOverlay';
 import TerritoryPanel from './TerritoryPanel';
 import Chat from './Chat';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
-
-interface TerritoryEstimate {
-  blackTerritory: number;
-  whiteTerritory: number;
-  neutralCount: number;
-  blackStones: number;
-  whiteStones: number;
-  blackTotal: number;
-  whiteTotal: number;
-  komi: number;
-}
-
-interface KatagoResult {
-  ownership: number[];
-  scoreLead: number;
-  winrate: number;
-}
 
 interface MobileGameBarProps {
   myTimer: TimerState;

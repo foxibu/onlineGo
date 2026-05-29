@@ -1,19 +1,4 @@
-interface TerritoryEstimate {
-  blackTerritory: number;
-  whiteTerritory: number;
-  neutralCount: number;
-  blackStones: number;
-  whiteStones: number;
-  blackTotal: number;
-  whiteTotal: number;
-  komi: number;
-}
-
-interface KatagoResult {
-  ownership: number[];
-  scoreLead: number;
-  winrate: number;
-}
+import { TerritoryEstimate, KatagoResult } from '@/lib/go/types';
 
 interface TerritoryPanelProps {
   moveCount: number;
