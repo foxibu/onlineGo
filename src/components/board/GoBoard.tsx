@@ -480,7 +480,7 @@ export default function GoBoard({
       {/* Confirm / cancel row — only visible after selecting a position */}
       <div className="h-10 flex items-center justify-center gap-2">
         {isAnalyzing && showTerritory && !isScoring ? (
-          <span className="text-xs text-stone-400 animate-pulse">AI 분석 중...</span>
+          <span className="text-xs text-go-t3 animate-pulse">AI 분석 중...</span>
         ) : pendingPos && isMyTurn && !isScoring ? (
           <>
             <button
