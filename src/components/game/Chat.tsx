@@ -14,12 +14,13 @@ interface ChatMessage {
 interface ChatProps {
   roomId: string;
   nickname: string;
+  hideToggle?: boolean;
 }
 
-export default function Chat({ roomId, nickname }: ChatProps) {
+export default function Chat({ roomId, nickname, hideToggle = false }: ChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(hideToggle);
   const [sendError, setSendError] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastIdRef = useRef<number>(0);
@@ -113,6 +114,7 @@ export default function Chat({ roomId, nickname }: ChatProps) {
   };
 
   if (!isOpen) {
+    if (hideToggle) return null;
     return (
       <button
         onClick={() => setIsOpen(true)}
