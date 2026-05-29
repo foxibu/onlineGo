@@ -9,6 +9,8 @@ import { useGame } from '@/hooks/useGame';
 import { usePushNotification } from '@/hooks/usePushNotification';
 import GoBoard from '@/components/board/GoBoard';
 import GamePanel from '@/components/game/GamePanel';
+import Timer from '@/components/game/Timer';
+import MobileGameBar from '@/components/game/MobileGameBar';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Toast from '@/components/ui/Toast';
@@ -195,32 +197,47 @@ function RoomContent() {
   // Waiting for opponent — only show this screen to the creator
   if (room.status === 'waiting' && isCreator) {
     const joinUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/room/${roomId}?action=join`;
+    const shortUrl = `${typeof window !== 'undefined' ? window.location.host : '...'}/room/${roomId}`;
+
     return (
       <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
-        <div className="text-center space-y-5 w-full max-w-sm">
-          {/* Animated waiting indicator */}
-          <div className="space-y-2">
-            <div className="text-4xl text-go-gold opacity-80 select-none" style={{ fontFamily: 'serif' }}>碁</div>
+        <div className="text-center space-y-6 w-full max-w-sm">
+          {/* 대기 애니메이션 */}
+          <div className="space-y-3">
+            <div
+              className="text-5xl text-go-gold opacity-80 select-none"
+              style={{ fontFamily: 'serif' }}
+            >
+              碁
+            </div>
             <h2 className="text-base font-semibold text-go-t1">상대방을 기다리는 중</h2>
-            <p className="text-go-t3 text-sm">아래 링크를 상대방에게 공유하세요</p>
+            {/* Pulsing dots */}
+            <div className="flex items-center justify-center gap-1.5">
+              {[0, 1, 2].map(i => (
+                <div
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-go-gold/50 animate-pulse"
+                  style={{ animationDelay: `${i * 200}ms` }}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Link box */}
-          <div
-            className="go-card p-3 text-xs text-go-t2 break-all cursor-pointer hover:border-white/12 transition-all"
-            onClick={handleCopyLink}
-          >
-            {joinUrl}
+          {/* 링크 단축 표시 */}
+          <div className="go-card p-3 text-xs text-go-t3 font-mono break-all select-all">
+            {shortUrl}
           </div>
 
-          <button
+          {/* 복사 버튼 */}
+          <Button
+            variant="secondary"
             onClick={handleCopyLink}
-            className={`text-sm font-medium transition-colors ${
-              copied ? 'text-go-green' : 'text-go-t3 hover:text-go-gold'
-            }`}
+            className="w-full"
           >
-            {copied ? '✓ 복사됨!' : '링크 복사'}
-          </button>
+            {copied ? '✓ 복사됨!' : '초대 링크 복사'}
+          </Button>
+
+          <p className="text-[11px] text-go-t3">링크를 상대방에게 공유하세요</p>
         </div>
       </main>
     );
@@ -228,75 +245,70 @@ function RoomContent() {
 
   const blackName = room.blackPlayer?.nickname || '흑';
   const whiteName = room.whitePlayer?.nickname || '백';
+  const topColor: Color = myColor === 'black' ? 'white' : 'black';
+  const bottomColor: Color = myColor === 'black' ? 'black' : 'white';
 
   return (
-    <main className="h-screen bg-go-bg flex flex-col lg:flex-row items-center justify-center gap-4 p-2 lg:p-4 overflow-hidden">
-      {/* Mobile: top timer */}
-      <div className="w-full max-w-lg lg:hidden">
-        <GamePanel
-          gameState={gameState}
-          roomStatus={room.status}
-          myColor={myColor}
-          blackTimer={blackTimer}
-          whiteTimer={whiteTimer}
-          blackName={blackName}
-          whiteName={whiteName}
-          komi={room.komi}
-          scoring={scoring}
-          undoPending={!!undoRequest && undoRequest.requested_by === myColor}
-          isSubmitting={isSubmitting}
-          showTerritory={showTerritory}
-          territoryEstimate={territoryEstimate}
-          katagoResult={katagoResult}
-          isAnalyzing={isAnalyzing}
-          onPass={handlePass}
-          onResign={handleResign}
-          onUndo={handleUndo}
-          onConfirmScore={handleConfirmScore}
-          onRequestScoring={handleRequestScoring}
-          onToggleTerritory={handleToggleTerritory}
-          onCancelScoring={handleCancelScoring}
-        />
-      </div>
+    <main className="h-screen bg-go-bg overflow-hidden">
 
-      {/* Board */}
-      <div className="flex-1 flex items-center justify-center w-full max-w-lg lg:max-w-2xl">
-        <GoBoard
-          board={gameState.board}
-          currentPlayer={gameState.currentPlayer}
-          lastMove={lastMove}
-          deadStones={scoring?.deadStones}
-          territoryBlack={isScoring ? scoring?.territory.black : (estimatedTerritory?.black ?? [])}
-          territoryWhite={isScoring ? scoring?.territory.white : (estimatedTerritory?.white ?? [])}
+      {/* ── 모바일 레이아웃 ──────────────────────────── */}
+      <div className="lg:hidden flex flex-col h-full">
+        {/* 상대 타이머 (상단) */}
+        <div className="flex-shrink-0">
+          <Timer
+            timer={topColor === 'black' ? blackTimer : whiteTimer}
+            isActive={gameState.currentPlayer === topColor && !isScoring && !isFinished}
+            playerName={topColor === 'black' ? blackName : whiteName}
+            color={topColor}
+            captures={gameState.captures[topColor]}
+          />
+        </div>
+
+        {/* 바둑판 */}
+        <div className="flex-1 flex items-center justify-center min-h-0 px-1 py-1">
+          <GoBoard
+            board={gameState.board}
+            currentPlayer={gameState.currentPlayer}
+            lastMove={lastMove}
+            deadStones={scoring?.deadStones}
+            territoryBlack={isScoring ? scoring?.territory.black : (estimatedTerritory?.black ?? [])}
+            territoryWhite={isScoring ? scoring?.territory.white : (estimatedTerritory?.white ?? [])}
+            isMyTurn={isMyTurn}
+            isScoring={isScoring}
+            showTerritory={showTerritory}
+            isSubmitting={isSubmitting}
+            ownership={katagoResult?.ownership ?? null}
+            isAnalyzing={isAnalyzing}
+            onPlace={handlePlace}
+            onDeadStoneToggle={handleDeadStoneToggle}
+          />
+        </div>
+
+        {/* 하단 바 + 드로어 */}
+        <MobileGameBar
+          myTimer={bottomColor === 'black' ? blackTimer : whiteTimer}
+          myColor={myColor}
+          myName={bottomColor === 'black' ? blackName : whiteName}
           isMyTurn={isMyTurn}
           isScoring={isScoring}
-          showTerritory={showTerritory}
+          isFinished={isFinished}
           isSubmitting={isSubmitting}
-          ownership={katagoResult?.ownership ?? null}
-          isAnalyzing={isAnalyzing}
-          onPlace={handlePlace}
-          onDeadStoneToggle={handleDeadStoneToggle}
-        />
-      </div>
-
-      {/* Desktop: side panel */}
-      <div className="hidden lg:flex lg:flex-col lg:w-72 lg:gap-3">
-        <GamePanel
-          gameState={gameState}
-          roomStatus={room.status}
-          myColor={myColor}
-          blackTimer={blackTimer}
-          whiteTimer={whiteTimer}
-          blackName={blackName}
-          whiteName={whiteName}
-          komi={room.komi}
-          scoring={scoring}
-          undoPending={!!undoRequest && undoRequest.requested_by === myColor}
-          isSubmitting={isSubmitting}
+          moveCount={gameState.moveCount}
+          gameResult={gameState.result ?? null}
           showTerritory={showTerritory}
           territoryEstimate={territoryEstimate}
           katagoResult={katagoResult}
           isAnalyzing={isAnalyzing}
+          komi={room.komi}
+          scoring={scoring}
+          myScoreConfirmed={
+            isScoring && scoring
+              ? myColor === 'black' ? scoring.blackConfirmed : scoring.whiteConfirmed
+              : false
+          }
+          undoPending={!!undoRequest && undoRequest.requested_by === myColor}
+          roomId={roomId}
+          nickname={nickname}
           onPass={handlePass}
           onResign={handleResign}
           onUndo={handleUndo}
@@ -305,24 +317,65 @@ function RoomContent() {
           onToggleTerritory={handleToggleTerritory}
           onCancelScoring={handleCancelScoring}
         />
-        <Chat roomId={roomId} nickname={nickname} />
       </div>
 
-      {/* Mobile chat button */}
-      <div className="lg:hidden">
-        <Chat roomId={roomId} nickname={nickname} />
+      {/* ── 데스크탑 레이아웃 ────────────────────────── */}
+      <div className="hidden lg:flex h-full items-center justify-center gap-4 p-4 overflow-hidden">
+        <div className="flex-1 flex items-center justify-center max-w-2xl min-h-0">
+          <GoBoard
+            board={gameState.board}
+            currentPlayer={gameState.currentPlayer}
+            lastMove={lastMove}
+            deadStones={scoring?.deadStones}
+            territoryBlack={isScoring ? scoring?.territory.black : (estimatedTerritory?.black ?? [])}
+            territoryWhite={isScoring ? scoring?.territory.white : (estimatedTerritory?.white ?? [])}
+            isMyTurn={isMyTurn}
+            isScoring={isScoring}
+            showTerritory={showTerritory}
+            isSubmitting={isSubmitting}
+            ownership={katagoResult?.ownership ?? null}
+            isAnalyzing={isAnalyzing}
+            onPlace={handlePlace}
+            onDeadStoneToggle={handleDeadStoneToggle}
+          />
+        </div>
+        <div className="flex flex-col w-72 gap-3 overflow-y-auto max-h-full">
+          <GamePanel
+            gameState={gameState}
+            roomStatus={room.status}
+            myColor={myColor}
+            blackTimer={blackTimer}
+            whiteTimer={whiteTimer}
+            blackName={blackName}
+            whiteName={whiteName}
+            komi={room.komi}
+            scoring={scoring}
+            undoPending={!!undoRequest && undoRequest.requested_by === myColor}
+            isSubmitting={isSubmitting}
+            showTerritory={showTerritory}
+            territoryEstimate={territoryEstimate}
+            katagoResult={katagoResult}
+            isAnalyzing={isAnalyzing}
+            onPass={handlePass}
+            onResign={handleResign}
+            onUndo={handleUndo}
+            onConfirmScore={handleConfirmScore}
+            onRequestScoring={handleRequestScoring}
+            onToggleTerritory={handleToggleTerritory}
+            onCancelScoring={handleCancelScoring}
+          />
+          <Chat roomId={roomId} nickname={nickname} />
+        </div>
       </div>
 
-      {/* Undo request modal */}
+      {/* ── 모달 / 토스트 (공통) ─────────────────────── */}
       <Modal
         open={!!showUndoModal}
         onClose={() => handleUndoResponse(false)}
         title="무르기 요청"
         actions={
           <>
-            <Button variant="ghost" onClick={() => handleUndoResponse(false)}>
-              거절
-            </Button>
+            <Button variant="ghost" onClick={() => handleUndoResponse(false)}>거절</Button>
             <Button onClick={() => handleUndoResponse(true)}>수락</Button>
           </>
         }
@@ -330,16 +383,13 @@ function RoomContent() {
         <p>상대방이 마지막 수를 되돌리길 요청했습니다.</p>
       </Modal>
 
-      {/* Scoring request modal (shown to the opponent) */}
       <Modal
         open={!!(scoringRequestedBy && scoringRequestedBy !== myColor)}
         onClose={handleRejectScoring}
         title="계가 신청"
         actions={
           <>
-            <Button variant="ghost" onClick={handleRejectScoring}>
-              거절
-            </Button>
+            <Button variant="ghost" onClick={handleRejectScoring}>거절</Button>
             <Button onClick={handleAcceptScoring}>수락</Button>
           </>
         }
@@ -347,7 +397,6 @@ function RoomContent() {
         <p>상대방이 계가(집 세기)를 요청했습니다. 수락하시겠습니까?</p>
       </Modal>
 
-      {/* Game result modal */}
       {isFinished && gameState.result && (
         <Modal
           open={true}
@@ -363,10 +412,7 @@ function RoomContent() {
         </Modal>
       )}
 
-      {/* Toast */}
-      {toast && (
-        <Toast message={toast.message} type={toast.type} onClose={clearToast} />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={clearToast} />}
     </main>
   );
 }
