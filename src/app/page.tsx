@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNickname } from '@/hooks/useNickname';
+import { supabase } from '@/lib/supabase/client';
 import RoomList from '@/components/lobby/RoomList';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -10,7 +11,35 @@ import Spinner from '@/components/ui/Spinner';
 export default function LobbyPage() {
   const { nickname, setNickname, loaded } = useNickname();
   const [inputName, setInputName] = useState('');
+  const [onlineCount, setOnlineCount] = useState<number | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!nickname) return;
+    const channel = supabase.channel('lobby', {
+      config: { presence: { key: nickname } },
+    });
+
+    const updateCount = () =>
+      setOnlineCount(Object.keys(channel.presenceState()).length);
+
+    channel.on('presence', { event: 'sync' }, updateCount);
+    channel.on('presence', { event: 'join' }, updateCount);
+    channel.on('presence', { event: 'leave' }, updateCount);
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        const result = await channel.track({ nickname });
+        if (result === 'ok') {
+          // 서버 반영 대기 후 카운트
+          setTimeout(updateCount, 500);
+          setTimeout(updateCount, 1500);
+        }
+      }
+    });
+
+    return () => { supabase.removeChannel(channel); };
+  }, [nickname]);
 
   if (!loaded) {
     return (
@@ -93,9 +122,15 @@ export default function LobbyPage() {
 
       {/* Room list */}
       <div>
-        <h2 className="text-[11px] font-semibold text-go-t3 uppercase tracking-wider mb-3">
-          대기 중인 방
-        </h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[11px] font-semibold text-go-t3 uppercase tracking-wider">
+            대기 중인 방
+          </h2>
+          <span className="flex items-center gap-1.5 text-[10px] text-go-t3">
+            <span className={`w-1.5 h-1.5 rounded-full ${onlineCount !== null ? 'bg-go-green' : 'bg-go-t3 animate-pulse'}`} />
+            {onlineCount !== null ? `${onlineCount}명 접속 중` : '연결 중...'}
+          </span>
+        </div>
         <RoomList nickname={nickname} />
       </div>
     </main>

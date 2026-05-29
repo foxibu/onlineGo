@@ -18,9 +18,9 @@
   --color-go-t2:   #9a9080;
   --color-go-t3:   #5e5a50;
 
-  /* Accent — warm amber gold (Go board wood) */
-  --color-go-gold:  #c48a1e;
-  --color-go-gold2: #dba030;
+  /* Accent — cream stone */
+  --color-go-gold:  #d4cfc6;
+  --color-go-gold2: #c4bfb6;
 
   /* Semantic */
   --color-go-red:   #b03a2c;
@@ -52,7 +52,7 @@ main {
 
 /* ── Focus ring ───────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid rgba(196, 138, 30, 0.55);
+  outline: 2px solid rgba(212, 207, 198, 0.6);
   outline-offset: 2px;
   border-radius: 4px;
 }

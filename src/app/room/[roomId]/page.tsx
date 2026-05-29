@@ -30,6 +30,7 @@ function RoomContent() {
   const [nicknameInput, setNicknameInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
+  const [isSpectator, setIsSpectator] = useState(false);
   // Prevent joinRoom from being called twice (React Strict Mode double-effect)
   const joinCalledRef = useRef(false);
 
@@ -65,6 +66,9 @@ function RoomContent() {
         // No nickname → ask for one
         setNeedNickname(true);
       }
+    } else {
+      // No color, no join action → spectator mode
+      setIsSpectator(true);
     }
   }, [roomId, searchParams]);
 
@@ -196,9 +200,30 @@ function RoomContent() {
 
   if (!room) return null;
 
+  // 관전자 대기 화면
+  if (isSpectator && room.status === 'waiting') {
+    return (
+      <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
+        <div className="text-center space-y-4 w-full max-w-sm">
+          <div className="text-5xl text-go-gold/40 select-none" style={{ fontFamily: 'serif' }}>碁</div>
+          <p className="text-go-t2 text-sm font-medium">아직 대국이 시작되지 않았습니다</p>
+          <p className="text-go-t3 text-xs">두 플레이어가 입장하면 관전이 시작됩니다</p>
+          <div className="flex items-center justify-center gap-1.5 pt-1">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-go-t3 animate-pulse"
+                style={{ animationDelay: `${i * 200}ms` }} />
+            ))}
+          </div>
+          <Link href="/" className="block text-go-t3 text-xs hover:text-go-t2 transition-colors pt-2">
+            로비로 돌아가기
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   // Waiting for opponent — only show this screen to the creator
   if (room.status === 'waiting' && isCreator) {
-    const joinUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/room/${roomId}?action=join`;
     const shortUrl = `${typeof window !== 'undefined' ? window.location.host : '...'}/room/${roomId}`;
 
     return (
@@ -287,6 +312,17 @@ function RoomContent() {
         </div>
 
         {/* 하단 바 + 드로어 */}
+        {isSpectator ? (
+          <div className="flex items-center justify-between px-4 py-2.5 bg-go-s1 border-t border-white/7 flex-shrink-0">
+            <span className="flex items-center gap-1.5 text-[11px] text-go-t3">
+              <span className="w-1.5 h-1.5 rounded-full bg-go-green" />
+              관전 중
+            </span>
+            <Link href="/" className="text-[11px] text-go-t3 hover:text-go-t2 transition-colors">
+              나가기
+            </Link>
+          </div>
+        ) : (
         <MobileGameBar
           myTimer={bottomColor === 'black' ? blackTimer : whiteTimer}
           myColor={myColor}
@@ -319,6 +355,7 @@ function RoomContent() {
           onToggleTerritory={handleToggleTerritory}
           onCancelScoring={handleCancelScoring}
         />
+        )}
       </div>
 
       {/* ── 데스크탑 레이아웃 ────────────────────────── */}
@@ -342,6 +379,13 @@ function RoomContent() {
           />
         </div>
         <div className="flex flex-col w-72 gap-3 overflow-y-auto max-h-full">
+          {isSpectator && (
+            <div className="go-card px-3 py-2 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-go-green flex-shrink-0" />
+              <span className="text-xs text-go-t2">관전 중</span>
+              <Link href="/" className="ml-auto text-[11px] text-go-t3 hover:text-go-t2 transition-colors">나가기</Link>
+            </div>
+          )}
           <GamePanel
             gameState={gameState}
             roomStatus={room.status}
