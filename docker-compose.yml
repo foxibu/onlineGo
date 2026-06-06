@@ -2,12 +2,14 @@ services:
   katago:
     build: ./katago
     restart: unless-stopped
+    networks:
+      - onlinego-net
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health | grep -q 'true' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
-      start_period: 120s   # model load takes a moment
+      start_period: 120s
 
   app:
     build:
@@ -16,16 +18,18 @@ services:
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+    container_name: onlinego-app
     environment:
+      - HOSTNAME=0.0.0.0
       - KATAGO_URL=http://katago:8080
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
       - VAPID_EMAIL=${VAPID_EMAIL}
       - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
-    ports:
-      - "80:3000"
+    expose:
+      - "3000"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q 'true' || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/onlineGo/api/health | grep -q 'true' || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -33,3 +37,13 @@ services:
     depends_on:
       katago:
         condition: service_healthy
+    networks:
+      - onlinego-net
+      - portfolio-net
+
+networks:
+  onlinego-net:
+    driver: bridge
+  portfolio-net:
+    name: portfolio_portfolio-net
+    external: true
