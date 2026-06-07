@@ -105,11 +105,11 @@ export function resign(state: GameState, color: Color): GameState {
   };
 }
 
-export function undoLastMove(state: GameState): GameState | null {
+export function undoLastMove(state: GameState, boardSize: number = state.board.length): GameState | null {
   if (state.moves.length === 0) return null;
 
   // Replay all moves except the last one from initial state
-  let replayState = createInitialGameState();
+  let replayState = createInitialGameState(boardSize);
   const movesToReplay = state.moves.slice(0, -1);
 
   for (const move of movesToReplay) {

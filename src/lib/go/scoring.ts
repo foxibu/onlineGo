@@ -1,5 +1,6 @@
 import { Board, Position, Color, ScoringState } from './types';
 import { getStone, getNeighbors, isValidPosition } from './board';
+import { getGroup } from './rules';
 
 // Chinese scoring: Territory = empty intersections surrounded by one color
 // Final score = territory + living stones on board + komi (for white)
@@ -157,24 +158,28 @@ export function createScoringState(): ScoringState {
   };
 }
 
-// Toggle a dead stone (add or remove from dead stones list)
+// Toggle dead stones for the entire connected group at pos
 export function toggleDeadStone(
   scoringState: ScoringState,
   pos: Position,
   board: Board,
   komi: number
 ): ScoringState {
-  const existing = scoringState.deadStones.findIndex(
-    p => p.x === pos.x && p.y === pos.y
-  );
+  // Only allow clicking on stones (not empty intersections)
+  if (getStone(board, pos) === null) return scoringState;
+
+  // Find the entire connected group
+  const group = getGroup(board, pos);
+  const groupKeys = new Set(group.map(p => `${p.x},${p.y}`));
+
+  // If any stone in the group is already marked dead → unmark the whole group
+  const anyDead = scoringState.deadStones.some(p => groupKeys.has(`${p.x},${p.y}`));
 
   let newDead: Position[];
-  if (existing >= 0) {
-    newDead = scoringState.deadStones.filter((_, i) => i !== existing);
+  if (anyDead) {
+    newDead = scoringState.deadStones.filter(p => !groupKeys.has(`${p.x},${p.y}`));
   } else {
-    // Only allow marking stones (not empty intersections) as dead
-    if (getStone(board, pos) === null) return scoringState;
-    newDead = [...scoringState.deadStones, pos];
+    newDead = [...scoringState.deadStones, ...group];
   }
 
   // Recalculate territory and score
