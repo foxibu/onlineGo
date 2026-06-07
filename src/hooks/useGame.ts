@@ -131,7 +131,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
 
     scoringAnalyzedRef.current = true;
 
-    fetch('/api/analyze', {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -403,7 +403,7 @@ export function useGame({ roomId, myColor }: UseGameOptions) {
     setIsAnalyzing(true);
     setKatagoResult(null);
 
-    fetch('/api/analyze', {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

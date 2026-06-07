@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     await webpush.sendNotification(
       data.subscription,
-      JSON.stringify({ title, body, url: url || `/room/${roomId}`, tag: roomId })
+      JSON.stringify({ title, body, url: url || `${process.env.NEXT_PUBLIC_BASE_PATH}/room/${roomId}`, tag: roomId })
     );
 
     return NextResponse.json({ ok: true });

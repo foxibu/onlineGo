@@ -1,15 +1,18 @@
 // Service Worker — push notifications
 
+// Derive basePath from the SW's own registration URL (e.g. /onlineGo/sw.js → /onlineGo)
+const BASE_PATH = new URL(self.location.href).pathname.replace(/\/sw\.js$/, '');
+
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {};
   event.waitUntil(
     self.registration.showNotification(data.title || '온라인 바둑', {
       body: data.body || '',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: `${BASE_PATH}/icon-192.png`,
+      badge: `${BASE_PATH}/icon-192.png`,
       tag: data.tag || 'go-notification',
       renotify: true,
-      data: { url: data.url || '/' },
+      data: { url: data.url || BASE_PATH },
     })
   );
 });

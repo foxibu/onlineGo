@@ -30,7 +30,7 @@ export function usePushNotification({ roomId, myColor }: UsePushNotificationOpti
 
     (async () => {
       try {
-        const reg = await navigator.serviceWorker.register('/sw.js');
+        const reg = await navigator.serviceWorker.register(`${process.env.NEXT_PUBLIC_BASE_PATH}/sw.js`);
         await navigator.serviceWorker.ready;
 
         // 이미 알림 권한 거부됐으면 조용히 종료
@@ -49,7 +49,7 @@ export function usePushNotification({ roomId, myColor }: UsePushNotificationOpti
         }
 
         // 서버에 구독 정보 저장
-        await fetch('/api/push/subscribe', {
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/push/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ roomId, color: myColor, subscription: sub.toJSON() }),
@@ -69,7 +69,7 @@ export async function notifyOpponent(
   body: string
 ) {
   const targetColor: Color = myColor === 'black' ? 'white' : 'black';
-  fetch('/api/push/notify', {
+  fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/push/notify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ roomId, targetColor, title, body }),

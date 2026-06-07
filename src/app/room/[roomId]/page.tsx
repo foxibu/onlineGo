@@ -93,7 +93,7 @@ function RoomContent() {
   };
 
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/room/${roomId}?action=join`;
+    const url = `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH}/room/${roomId}?action=join`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -224,7 +224,7 @@ function RoomContent() {
 
   // Waiting for opponent — only show this screen to the creator
   if (room.status === 'waiting' && isCreator) {
-    const shortUrl = `${typeof window !== 'undefined' ? window.location.host : '...'}/room/${roomId}`;
+    const shortUrl = `${typeof window !== 'undefined' ? window.location.host : '...'}${process.env.NEXT_PUBLIC_BASE_PATH}/room/${roomId}`;
 
     return (
       <main className="min-h-screen bg-go-bg flex items-center justify-center p-4">
