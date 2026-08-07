@@ -16,29 +16,55 @@ export default function LobbyPage() {
 
   useEffect(() => {
     if (!nickname) return;
-    const channel = supabase.channel('lobby', {
-      config: { presence: { key: nickname } },
-    });
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const updateCount = () =>
-      setOnlineCount(Object.keys(channel.presenceState()).length);
+    const connect = () => {
+      if (cancelled) return;
+      // RoomList가 'lobby' 채널(DB 변경 구독)을 이미 쓰고 있어서, supabase-js가
+      // 토픽이 같으면 기존 채널을 재사용해 presence 설정이 무시되는 문제가 있었음.
+      // 별도 토픽으로 분리해 충돌 방지.
+      channel = supabase.channel('lobby-presence', {
+        config: { presence: { key: nickname } },
+      });
 
-    channel.on('presence', { event: 'sync' }, updateCount);
-    channel.on('presence', { event: 'join' }, updateCount);
-    channel.on('presence', { event: 'leave' }, updateCount);
+      const updateCount = () =>
+        setOnlineCount(Object.keys(channel!.presenceState()).length);
 
-    channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        const result = await channel.track({ nickname });
-        if (result === 'ok') {
-          // 서버 반영 대기 후 카운트
-          setTimeout(updateCount, 500);
-          setTimeout(updateCount, 1500);
+      channel.on('presence', { event: 'sync' }, updateCount);
+      channel.on('presence', { event: 'join' }, updateCount);
+      channel.on('presence', { event: 'leave' }, updateCount);
+
+      channel.subscribe(async (status) => {
+        if (cancelled) return;
+
+        if (status === 'SUBSCRIBED') {
+          const result = await channel!.track({ nickname });
+          if (result === 'ok') {
+            // 서버 반영 대기 후 카운트
+            setTimeout(updateCount, 500);
+            setTimeout(updateCount, 1500);
+          }
+          return;
         }
-      }
-    });
 
-    return () => { supabase.removeChannel(channel); };
+        // 연결 실패(타임아웃, 채널 오류, 유휴 종료 등) → 재연결 시도
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          setOnlineCount(null);
+          if (channel) supabase.removeChannel(channel);
+          retryTimer = setTimeout(connect, 3000);
+        }
+      });
+    };
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (channel) supabase.removeChannel(channel);
+    };
   }, [nickname]);
 
   if (!loaded) {
