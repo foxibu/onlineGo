@@ -25,8 +25,16 @@ export default function LobbyPage() {
       // RoomList가 'lobby' 채널(DB 변경 구독)을 이미 쓰고 있어서, supabase-js가
       // 토픽이 같으면 기존 채널을 재사용해 presence 설정이 무시되는 문제가 있었음.
       // 별도 토픽으로 분리해 충돌 방지.
+      //
+      // presence key는 nickname이 아니라 매 연결마다 새로 만드는 고유 id를 쓴다.
+      // presenceState()는 key 기준으로 묶이므로, key를 nickname으로 두면 닉네임이
+      // 같은 서로 다른 두 사람이 같은 키로 합쳐져 1명으로 집계되는 문제가 있었다.
+      const clientId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`;
       channel = supabase.channel('lobby-presence', {
-        config: { presence: { key: nickname } },
+        config: { presence: { key: clientId } },
       });
 
       const updateCount = () =>
